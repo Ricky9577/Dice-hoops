@@ -1,101 +1,81 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Basket Dice</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b1020">
+
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Basket Dice">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <div class="app">
 
     <!-- LANDING -->
-    <section class="screen screen--active" id="screenLanding" aria-hidden="false">
-      <div class="landing">
-        <div class="landing-hero">
-          <div class="brand big">
-            <div class="ball big"></div>
-            <div>
-              <div class="title big">Basket Dice</div>
-              <div class="subtitle">Turn-based • dadi • primo a 21</div>
-            </div>
-          </div>
+    <section class="screen landing active" id="screenLanding">
+      <div class="landing-card">
+        <h1>Basket Dice</h1>
+        <p class="muted">Turn-based • dadi • primo a 21</p>
 
-          <div class="landing-card">
-            <div class="landing-kicker">Scegli</div>
-            <div class="landing-actions">
-              <button class="btn primary big" id="btnGoPlay">🏀 Gioca</button>
-              <button class="btn big" id="btnGoStats">📊 Statistiche</button>
-            </div>
-            <div class="landing-tip">
-              Tip: con 6 sul Dado 2 scegli il tiro e il Dado 3 parte da solo.
-            </div>
-          </div>
-
-          <div class="landing-card">
-            <div class="landing-kicker">Squadre & roster (salvati)</div>
-
-            <div class="teams">
-              <div class="team">
-                <label for="teamHumanName">Squadra YOU</label>
-                <input id="teamHumanName" placeholder="Es. Street Ballers" />
-              </div>
-
-              <div class="team">
-                <label for="teamAIName">Squadra AI</label>
-                <input id="teamAIName" placeholder="Es. Dice Kings" />
-              </div>
-            </div>
-
-            <div class="players-edit">
-              <div class="players-title">Giocatori YOU</div>
-              <div class="players-grid">
-                <input id="p1" placeholder="Giocatore 1" />
-                <input id="p2" placeholder="Giocatore 2" />
-                <input id="p3" placeholder="Giocatore 3" />
-                <input id="p4" placeholder="Giocatore 4" />
-                <input id="p5" placeholder="Giocatore 5" />
-                <input id="p6" placeholder="Giocatore 6" />
-              </div>
-              <div class="muted mini">
-                Nota: le skill restano quelle base (PM / all-around / big).
-              </div>
-            </div>
-          </div>
-
-          <div class="landing-glow"></div>
+        <div class="landing-actions">
+          <button class="btn primary" id="btnGoPlay">🏀 Gioca</button>
+          <button class="btn" id="btnGoStats">📊 Statistiche</button>
         </div>
 
-        
+        <p class="tip">Tip: con 6 sul Dado 2 scegli il tiro e il Dado 3 parte da solo.</p>
+
+        <div class="landing-card">
+          <div class="landing-kicker">Squadre & roster</div>
+
+          <div class="teams">
+            <div class="team">
+              <label>Squadra YOU</label>
+              <input id="teamHumanName" placeholder="YOU" />
+            </div>
+
+            <div class="team">
+              <label>Squadra AI</label>
+              <input id="teamAIName" placeholder="AI" />
+            </div>
+          </div>
+
+          <div class="players-edit">
+            <div class="players-title">Giocatori YOU</div>
+            <div class="players-grid">
+              <input id="p1" placeholder="Playmaker 1" />
+              <input id="p2" placeholder="Playmaker 2" />
+              <input id="p3" placeholder="All-around 3" />
+              <input id="p4" placeholder="All-around 4" />
+              <input id="p5" placeholder="Big 5" />
+              <input id="p6" placeholder="Big 6" />
+            </div>
+            <p class="muted small">
+              Nota: le skill restano quelle base (PM / all-around / big).
+            </p>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- GAME -->
-    <section class="screen" id="screenGame" aria-hidden="true">
+    <section class="screen game" id="screenGame">
       <header class="topbar">
-        <div class="brand">
-          <div class="ball"></div>
-          <div>
-            <div class="title">Basket Dice</div>
-            <div class="subtitle">Primo a 21 — Player vs AI</div>
-          </div>
-        </div>
-
-        <div class="topbar-actions">
-          <button class="btn small" id="btnBackHome">⌂ Menu</button>
-          <button class="btn small" id="btnSoundToggle" aria-pressed="true">🔊 Suoni: ON</button>
-        </div>
-
-        <div class="scoreboard">
-          <div class="score">
-            <div class="label" id="scoreHumanLabel">YOU</div>
-            <div class="value" id="scoreHuman">0</div>
-          </div>
-          <div class="divider"></div>
-          <div class="score">
-            <div class="label" id="scoreAILabel">AI</div>
-            <div class="value" id="scoreAI">0</div>
-          </div>
+        <div class="title">Basket Dice</div>
+        <div class="subtitle">Primo a 21 — Player vs AI</div>
+        <div class="top-actions">
+          <button class="btn small" id="btnBackMenu">⌂ Menu</button>
+          <button class="btn small" id="btnToggleSound">🔊 Suoni: ON</button>
         </div>
       </header>
 
@@ -103,27 +83,9 @@
         <section class="court">
           <div class="court-overlay">
 
-            <!-- basket elements -->
-            <div class="hoop"></div>
-            <div class="ball-shot" id="ballShot" aria-hidden="true"></div>
-
-            <!-- FX overlays -->
-            <div class="fx-flash" id="fxFlash" aria-hidden="true"></div>
-            <div class="fx-banner" id="fxBanner" aria-hidden="true">
-              <div class="fx-banner-text" id="fxBannerText">SWISH</div>
-            </div>
-            <div class="fx-float" id="fxFloat" aria-hidden="true">+2</div>
-
             <div class="possession">
               <div class="pill" id="possessionPill">Possesso: YOU</div>
               <div class="pill secondary" id="statusPill">Pronto</div>
-            </div>
-
-            <div class="shotmeter">
-              <div class="shotmeter-label">Shot meter</div>
-              <div class="shotmeter-bar">
-                <div class="shotmeter-fill" id="shotmeterFill" style="width:0%"></div>
-              </div>
             </div>
 
             <div class="dice-row">
@@ -159,7 +121,7 @@
               </div>
 
               <div class="choice" id="choiceBox" aria-hidden="true">
-                <div class="choice-title">Hai fatto 6 sul Dado 2: scegli tu l’azione</div>
+                <div class="choice-title">Hai fatto 6: scegli il tiro</div>
                 <div class="choice-actions">
                   <button class="btn small" id="btnChooseClose">Tiro da sotto (2)</button>
                   <button class="btn small" id="btnChooseThree">Tiro da 3 (3)</button>
@@ -171,86 +133,28 @@
               <div class="log-title">Cronaca</div>
               <div class="log-box" id="logBox"></div>
             </div>
+
           </div>
+
+          <!-- animazioni -->
+          <div class="ball-shot" id="ballShot"></div>
+          <div class="hoop"></div>
         </section>
-
-        <section class="legend">
-          <div class="legend-card">
-            <div class="legend-title">Regole rapide</div>
-            <ul>
-              <li><b>Dado 1</b> = giocatore (1–6).</li>
-              <li><b>Dado 2</b> = azione: 1 turnover, 2–3 sotto, 4–5 da 3, 6 scegli.</li>
-              <li><b>Dado 3</b> = esito tiro, pesato dalle skill.</li>
-              <li>Se errore: rimbalzo col tiratore. Se preso, continui.</li>
-              <li>Vince chi arriva a <b>21</b>.</li>
-            </ul>
-          </div>
-        </section>
-      </main>
-
-      <footer class="footer">
-        <span>Tip: le statistiche si salvano automaticamente a fine partita.</span>
-      </footer>
-    </section>
-
-    <!-- STATS -->
-    <section class="screen" id="screenStats" aria-hidden="true">
-      <header class="topbar">
-        <div class="brand">
-          <div class="ball"></div>
-          <div>
-            <div class="title">Statistiche</div>
-            <div class="subtitle">Salvate in locale</div>
-          </div>
-        </div>
-
-        <div class="topbar-actions">
-          <button class="btn small" id="btnStatsBack">⌂ Menu</button>
-          <button class="btn small danger" id="btnResetStats">🗑 Reset</button>
-        </div>
-      </header>
-
-      <main class="stats">
-        <div class="stats-grid">
-          <div class="stats-card">
-            <div class="stats-title">Record</div>
-            <div class="stats-row"><span>Partite</span><b id="stGames">0</b></div>
-            <div class="stats-row"><span>Vittorie</span><b id="stWins">0</b></div>
-            <div class="stats-row"><span>Sconfitte</span><b id="stLosses">0</b></div>
-            <div class="stats-row"><span>Win %</span><b id="stWinPct">0%</b></div>
-          </div>
-
-          <div class="stats-card">
-            <div class="stats-title">Punti</div>
-            <div class="stats-row"><span>Fatti</span><b id="stPtsFor">0</b></div>
-            <div class="stats-row"><span>Subiti</span><b id="stPtsAgainst">0</b></div>
-            <div class="stats-row"><span>Diff.</span><b id="stDiff">0</b></div>
-          </div>
-
-          <div class="stats-card">
-            <div class="stats-title">Tiri</div>
-            <div class="stats-row"><span>2PT</span><b id="st2pt">0/0</b></div>
-            <div class="stats-row"><span>3PT</span><b id="st3pt">0/0</b></div>
-            <div class="stats-row"><span>FG%</span><b id="stFgPct">0%</b></div>
-          </div>
-
-          <div class="stats-card">
-            <div class="stats-title">Extra</div>
-            <div class="stats-row"><span>Turnover (YOU)</span><b id="stTov">0</b></div>
-            <div class="stats-row"><span>Rimbalzi presi</span><b id="stRebWon">0</b></div>
-            <div class="stats-row"><span>Rimbalzi persi</span><b id="stRebLost">0</b></div>
-          </div>
-        </div>
-
-        <div class="stats-note">
-          Le statistiche si aggiornano a fine partita (quando qualcuno arriva a 21).
-        </div>
       </main>
     </section>
 
   </div>
 
+  <!-- GAME LOGIC -->
   <script src="game.js"></script>
+
+  <!-- SERVICE WORKER -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>
-
