@@ -9,9 +9,6 @@ window.addEventListener("DOMContentLoaded", () => {
     fxDurationMs: 520,
   };
 
-  /***********************
-   * DOM helpers
-   ***********************/
   const $ = (id) => document.getElementById(id);
 
   /***********************
@@ -19,6 +16,7 @@ window.addEventListener("DOMContentLoaded", () => {
    ***********************/
   const Screens = {
     landing: $("screenLanding"),
+    tutorial: $("screenTutorial"),
     game: $("screenGame"),
     stats: $("screenStats"),
   };
@@ -35,10 +33,7 @@ window.addEventListener("DOMContentLoaded", () => {
   /***********************
    * Sound (WebAudio)
    ***********************/
-  const Sound = {
-    enabled: true,
-    ctx: null,
-  };
+  const Sound = { enabled: true, ctx: null };
 
   function getAudioCtx() {
     if (!Sound.ctx) Sound.ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -74,35 +69,33 @@ window.addEventListener("DOMContentLoaded", () => {
     osc.stop(now + duration + 0.03);
   }
 
-  function sfxSwish() {
-    beep({ freq: 520, type: "sine", duration: 0.08, gain: 0.07 });
-    setTimeout(() => beep({ freq: 780, type: "triangle", duration: 0.09, gain: 0.06 }), 55);
-    setTimeout(() => beep({ freq: 1040, type: "triangle", duration: 0.10, gain: 0.05 }), 110);
-  }
-
-  function sfxClank() {
-    beep({ freq: 180, type: "square", duration: 0.10, gain: 0.06 });
-    setTimeout(() => beep({ freq: 140, type: "square", duration: 0.09, gain: 0.05 }), 70);
-  }
-
-  function sfxTurnover() {
-    beep({ freq: 260, type: "sawtooth", duration: 0.08, gain: 0.05 });
-    setTimeout(() => beep({ freq: 180, type: "sawtooth", duration: 0.10, gain: 0.05 }), 70);
-  }
-
-  function sfxBoard(good) {
-    beep({ freq: good ? 420 : 220, type: good ? "triangle" : "sawtooth", duration: 0.08, gain: 0.05 });
-  }
+  const sfx = {
+    swish() {
+      beep({ freq: 520, type: "sine", duration: 0.08, gain: 0.07 });
+      setTimeout(() => beep({ freq: 780, type: "triangle", duration: 0.09, gain: 0.06 }), 55);
+      setTimeout(() => beep({ freq: 1040, type: "triangle", duration: 0.10, gain: 0.05 }), 110);
+    },
+    clank() {
+      beep({ freq: 180, type: "square", duration: 0.10, gain: 0.06 });
+      setTimeout(() => beep({ freq: 140, type: "square", duration: 0.09, gain: 0.05 }), 70);
+    },
+    turnover() {
+      beep({ freq: 260, type: "sawtooth", duration: 0.08, gain: 0.05 });
+      setTimeout(() => beep({ freq: 180, type: "sawtooth", duration: 0.10, gain: 0.05 }), 70);
+    },
+    board(good) {
+      beep({ freq: good ? 420 : 220, type: good ? "triangle" : "sawtooth", duration: 0.08, gain: 0.05 });
+    }
+  };
 
   /***********************
    * Teams (localStorage)
    ***********************/
   const TEAM_KEY = "basket_dice_teams_v1";
-
   const defaultTeams = () => ({
     humanName: "YOU",
     aiName: "AI",
-    players: ["Playmaker 1", "Playmaker 2", "All-around 3", "All-around 4", "Big 5", "Big 6"],
+    players: ["Playmaker 1","Playmaker 2","All-around 3","All-around 4","Big 5","Big 6"],
   });
 
   function loadTeams() {
@@ -150,18 +143,12 @@ window.addEventListener("DOMContentLoaded", () => {
    ***********************/
   const STATS_KEY = "basket_dice_stats_v1";
   const defaultStats = () => ({
-    games: 0,
-    wins: 0,
-    losses: 0,
-    ptsFor: 0,
-    ptsAgainst: 0,
-    twoMade: 0,
-    twoAtt: 0,
-    threeMade: 0,
-    threeAtt: 0,
+    games: 0, wins: 0, losses: 0,
+    ptsFor: 0, ptsAgainst: 0,
+    twoMade: 0, twoAtt: 0,
+    threeMade: 0, threeAtt: 0,
     turnovers: 0,
-    reboundsWon: 0,
-    reboundsLost: 0,
+    reboundsWon: 0, reboundsLost: 0,
   });
 
   function loadStats() {
@@ -175,23 +162,17 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function saveStats(s) {
-    localStorage.setItem(STATS_KEY, JSON.stringify(s));
-  }
-
-  function resetStats() {
-    saveStats(defaultStats());
-    renderStatsUI();
-  }
+  function saveStats(s) { localStorage.setItem(STATS_KEY, JSON.stringify(s)); }
+  function resetStats() { saveStats(defaultStats()); renderStatsUI(); }
 
   let Stats = loadStats();
 
   function renderStatsUI() {
     Stats = loadStats();
     const fgMade = Stats.twoMade + Stats.threeMade;
-    const fgAtt = Stats.twoAtt + Stats.threeAtt;
+    const fgAtt  = Stats.twoAtt + Stats.threeAtt;
     const winPct = Stats.games ? Math.round((Stats.wins / Stats.games) * 100) : 0;
-    const fgPct = fgAtt ? Math.round((fgMade / fgAtt) * 100) : 0;
+    const fgPct  = fgAtt ? Math.round((fgMade / fgAtt) * 100) : 0;
 
     $("stGames").textContent = Stats.games;
     $("stWins").textContent = Stats.wins;
@@ -212,57 +193,49 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   /***********************
-   * Game helpers
+   * Helpers
    ***********************/
-  function rollDie() {
-    return Math.floor(Math.random() * 6) + 1;
-  }
-
-  function sleep(ms) {
-    return new Promise((r) => setTimeout(r, ms));
-  }
+  function rollDie() { return Math.floor(Math.random() * 6) + 1; }
+  function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
   function skillBadge(label, level) {
     const cls = level === "good" ? "good" : level === "bad" ? "bad" : "medium";
     return `<span class="badge ${cls}">${label}: ${level}</span>`;
   }
 
-  function actionFromDie(value) {
-    if (value === 1) return { type: "turnover" };
-    if (value === 2 || value === 3) return { type: "close" };
-    if (value === 4 || value === 5) return { type: "three" };
-    return { type: "choose" }; // 6
+  function actionFromDie(v) {
+    if (v === 1) return { type: "turnover" };
+    if (v === 2 || v === 3) return { type: "close" };
+    if (v === 4 || v === 5) return { type: "three" };
+    return { type: "choose" };
   }
 
   function shotThreshold(skillLevel) {
     if (skillLevel === "good") return { scoreMin: 3 };
-    if (skillLevel === "bad") return { scoreMin: 5 };
+    if (skillLevel === "bad")  return { scoreMin: 5 };
     return { scoreMin: 4 };
   }
 
   function reboundSuccessOn(skillLevel) {
     if (skillLevel === "strong") return { min: 4 };
-    if (skillLevel === "weak") return { min: 6 };
+    if (skillLevel === "weak")   return { min: 6 };
     return { min: 5 };
   }
 
-  function levelToScore(level) {
-    return level === "good" ? 70 : level === "medium" ? 50 : 30;
-  }
+  function levelToScore(level) { return level === "good" ? 70 : level === "medium" ? 50 : 30; }
 
   /***********************
    * Teams build
    ***********************/
   function makeTeam(name, customPlayers) {
     const base = [
-      { role: "Playmaker", shooting_close: "bad", shooting_3: "good", rebound: "weak" },
-      { role: "Playmaker", shooting_close: "bad", shooting_3: "good", rebound: "weak" },
-      { role: "All-around", shooting_close: "medium", shooting_3: "medium", rebound: "medium" },
-      { role: "All-around", shooting_close: "medium", shooting_3: "medium", rebound: "medium" },
-      { role: "Big", shooting_close: "good", shooting_3: "bad", rebound: "strong" },
-      { role: "Big", shooting_close: "good", shooting_3: "bad", rebound: "strong" },
+      { role:"Playmaker", shooting_close:"bad",    shooting_3:"good",   rebound:"weak" },
+      { role:"Playmaker", shooting_close:"bad",    shooting_3:"good",   rebound:"weak" },
+      { role:"All-around",shooting_close:"medium", shooting_3:"medium", rebound:"medium" },
+      { role:"All-around",shooting_close:"medium", shooting_3:"medium", rebound:"medium" },
+      { role:"Big",       shooting_close:"good",   shooting_3:"bad",    rebound:"strong" },
+      { role:"Big",       shooting_close:"good",   shooting_3:"bad",    rebound:"strong" },
     ];
-
     return {
       name,
       players: base.map((b, i) => ({
@@ -280,10 +253,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const data = {
       humanName: ($("teamHumanName").value || "YOU").trim(),
       aiName: ($("teamAIName").value || "AI").trim(),
-      players: [
-        $("p1").value, $("p2").value, $("p3").value,
-        $("p4").value, $("p5").value, $("p6").value,
-      ],
+      players: [$("p1").value,$("p2").value,$("p3").value,$("p4").value,$("p5").value,$("p6").value],
     };
     saveTeams(data);
 
@@ -291,14 +261,12 @@ window.addEventListener("DOMContentLoaded", () => {
     humanTeam = makeTeam(saved.humanName, saved.players);
     aiTeam = makeTeam(saved.aiName, null);
 
-    // update UI labels
     $("scoreHumanLabel").textContent = saved.humanName.toUpperCase();
     $("scoreAILabel").textContent = saved.aiName.toUpperCase();
+    $("matchSubtitle").textContent = `Primo a ${CONFIG.targetScore}`;
   }
 
-  function teamOf(possession) {
-    return possession === "HUMAN" ? humanTeam : aiTeam;
-  }
+  function teamOf(possession) { return possession === "HUMAN" ? humanTeam : aiTeam; }
 
   /***********************
    * State
@@ -356,15 +324,16 @@ window.addEventListener("DOMContentLoaded", () => {
    * UI refs
    ***********************/
   const UI = {
-    // nav
     btnGoPlay: $("btnGoPlay"),
     btnGoStats: $("btnGoStats"),
+    btnGoTutorial: $("btnGoTutorial"),
+    btnTutBack: $("btnTutBack"),
+
     btnBackHome: $("btnBackHome"),
     btnStatsBack: $("btnStatsBack"),
     btnResetStats: $("btnResetStats"),
     btnSoundToggle: $("btnSoundToggle"),
 
-    // game
     die1: $("die1"),
     die2: $("die2"),
     die3: $("die3"),
@@ -381,7 +350,6 @@ window.addEventListener("DOMContentLoaded", () => {
     btnChooseClose: $("btnChooseClose"),
     btnChooseThree: $("btnChooseThree"),
 
-    // fx
     fxFlash: $("fxFlash"),
     fxBanner: $("fxBanner"),
     fxBannerText: $("fxBannerText"),
@@ -391,16 +359,14 @@ window.addEventListener("DOMContentLoaded", () => {
   };
 
   function logLine(html) {
-    const p = document.createElement("div");
-    p.className = "log-line";
-    p.innerHTML = html;
-    UI.logBox.appendChild(p);
+    const div = document.createElement("div");
+    div.className = "log-line";
+    div.innerHTML = html;
+    UI.logBox.appendChild(div);
     UI.logBox.scrollTop = UI.logBox.scrollHeight;
   }
 
-  function setStatus(text) {
-    UI.statusPill.textContent = text;
-  }
+  function setStatus(text) { UI.statusPill.textContent = text; }
 
   function setPossessionPill() {
     const name = State.possession === "HUMAN" ? humanTeam.name : aiTeam.name;
@@ -462,7 +428,7 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   /***********************
-   * FX (visual + ball)
+   * FX
    ***********************/
   function fxFlash() {
     UI.fxFlash.classList.add("on");
@@ -485,16 +451,13 @@ window.addEventListener("DOMContentLoaded", () => {
 
   function animateBall(made) {
     UI.ballShot.classList.remove("make", "miss", "on");
-    // force reflow to restart animation reliably
     void UI.ballShot.offsetWidth;
     UI.ballShot.classList.add("on", made ? "make" : "miss");
-    setTimeout(() => {
-      UI.ballShot.classList.remove("on", "make", "miss");
-    }, 700);
+    setTimeout(() => UI.ballShot.classList.remove("on", "make", "miss"), 700);
   }
 
   /***********************
-   * AI decisions
+   * AI
    ***********************/
   function aiChooseShotType(player) {
     const closeLevel = player.shooting_close;
@@ -510,7 +473,7 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   /***********************
-   * Game flow
+   * Core gameplay
    ***********************/
   async function stepRollPlayer() {
     setStatus("Lancio Dado 1…");
@@ -537,31 +500,31 @@ window.addEventListener("DOMContentLoaded", () => {
       logLine(`🟥 Turnover! (<b>${teamOf(State.possession).name}</b>) perde palla.`);
       fxBanner("TURNOVER", "bad");
       fxFlash();
-      sfxTurnover();
+      sfx.turnover();
 
       if (State.possession === "HUMAN") MatchStats.turnoversHuman += 1;
 
       setStatus("Turnover → cambio possesso");
-      await sleep(350);
+      await sleep(300);
       switchPossession();
       if (State.possession === "AI") await maybeAutoPlayAI();
       return;
     }
 
     if (action.type === "choose") {
-      logLine(`🎲 Dado 2 = <b>6</b> → scelta azione.`);
+      logLine(`🎲 Dado 2 = <b>6</b> → scelta tiro.`);
       if (State.possession === "HUMAN") {
         State.phase = "NEED_CHOICE";
-        setStatus("Scegli tiro (sotto o 3)");
+        setStatus("Scegli tiro");
         showChoice(true);
         UI.btnRoll.disabled = true;
       } else {
         const chosen = aiChooseShotType(p);
-        logLine(`🤖 AI sceglie: <b>${chosen === "close" ? "tiro da sotto" : "tiro da 3"}</b>.`);
+        logLine(`🤖 AI sceglie: <b>${chosen === "close" ? "sotto" : "da 3"}</b>.`);
         State.lastShotType = chosen;
         updateShotMeterForShot(p, chosen);
         State.phase = "NEED_RESULT";
-        setStatus("Lancia Dado 3 (esito tiro)");
+        setStatus("Lancio Dado 3…");
         await maybeAutoPlayAI();
       }
       return;
@@ -572,7 +535,6 @@ window.addEventListener("DOMContentLoaded", () => {
     logLine(`🎯 Azione: <b>${action.type === "close" ? "Tiro da sotto (2)" : "Tiro da 3 (3)"}</b>.`);
     State.phase = "NEED_RESULT";
     setStatus("Lancia Dado 3 (esito tiro)");
-
     if (State.possession === "AI") await maybeAutoPlayAI();
   }
 
@@ -591,7 +553,6 @@ window.addEventListener("DOMContentLoaded", () => {
     const made = v >= thr.scoreMin;
     const points = shotType === "close" ? 2 : 3;
 
-    // attempts tracked only for YOU (stats page focuses on you)
     if (State.possession === "HUMAN") {
       if (shotType === "close") MatchStats.twoAtt += 1;
       else MatchStats.threeAtt += 1;
@@ -606,25 +567,25 @@ window.addEventListener("DOMContentLoaded", () => {
       fxFlash();
       fxBanner(shotType === "close" ? "BUCKET!" : "SWISH!", "good");
       fxFloat(`+${points}`);
-      sfxSwish();
+      sfx.swish();
 
       if (State.possession === "HUMAN") {
         if (shotType === "close") MatchStats.twoMade += 1;
         else MatchStats.threeMade += 1;
       }
 
-      logLine(`✅ <b>${teamOf(State.possession).name}</b> segna! (${p.name}) <b>+${points}</b> — (Dado 3=${v}, skill ${skillLevel}).`);
+      logLine(`✅ <b>${teamOf(State.possession).name}</b> segna! (${p.name}) <b>+${points}</b> — (D3=${v}, ${skillLevel}).`);
       setStatus(`Canestro! +${points}`);
 
       if (checkGameOver()) return;
 
-      await sleep(450);
+      await sleep(420);
       switchPossession();
       if (State.possession === "AI") await maybeAutoPlayAI();
     } else {
       fxBanner("CLANK", "bad");
-      sfxClank();
-      logLine(`❌ Errore. (${p.name}) — (Dado 3=${v}, skill ${skillLevel}).`);
+      sfx.clank();
+      logLine(`❌ Errore. (${p.name}) — (D3=${v}, ${skillLevel}).`);
       State.phase = "NEED_REBOUND";
       setStatus("Lancia per rimbalzo");
       if (State.possession === "AI") await maybeAutoPlayAI();
@@ -644,13 +605,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
     if (got) {
       fxBanner("BOARD!", "good");
-      sfxBoard(true);
+      sfx.board(true);
 
-      // your "rebounds won/lost" around possession changes
       if (State.possession === "HUMAN") MatchStats.reboundsWon += 1;
       else MatchStats.reboundsLost += 1;
 
-      logLine(`🏀 <b>${teamOf(State.possession).name}</b> prende rimbalzo! (${p.name}) — (Dado=${v}, rebound ${p.rebound}).`);
+      logLine(`🏀 <b>${teamOf(State.possession).name}</b> prende rimbalzo! (${p.name}) — (D=${v}, ${p.rebound}).`);
       State.phase = "NEED_ACTION";
       State.lastShotType = null;
       UI.die2.textContent = "-";
@@ -659,13 +619,13 @@ window.addEventListener("DOMContentLoaded", () => {
       if (State.possession === "AI") await maybeAutoPlayAI();
     } else {
       fxBanner("NO REB", "bad");
-      sfxBoard(false);
+      sfx.board(false);
 
       if (State.possession === "HUMAN") MatchStats.reboundsLost += 1;
       else MatchStats.reboundsWon += 1;
 
-      logLine(`🙅 Rimbalzo perso. (${p.name}) — (Dado=${v}, rebound ${p.rebound}). Cambio possesso.`);
-      await sleep(350);
+      logLine(`🙅 Rimbalzo perso. (${p.name}) — (D=${v}, ${p.rebound}). Cambio possesso.`);
+      await sleep(280);
       switchPossession();
       if (State.possession === "AI") await maybeAutoPlayAI();
     }
@@ -694,7 +654,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
       fxBanner(humanWon ? "YOU WIN" : "YOU LOSE", humanWon ? "good" : "bad");
       fxFlash();
-      humanWon ? sfxSwish() : sfxClank();
+      humanWon ? sfx.swish() : sfx.clank();
 
       setStatus(`Fine partita: vince ${winner}`);
       logLine(`<b>🏁 Fine partita!</b> Vince <b>${winner}</b> (${h} - ${a}).`);
@@ -716,9 +676,6 @@ window.addEventListener("DOMContentLoaded", () => {
     setStatus("Lancia Dado 1 (giocatore)");
   }
 
-  /***********************
-   * New game
-   ***********************/
   function newGame() {
     State.possession = "HUMAN";
     State.scores = { HUMAN: 0, AI: 0 };
@@ -740,38 +697,35 @@ window.addEventListener("DOMContentLoaded", () => {
     logLine(`🏁 Nuova partita. Arriva a <b>${CONFIG.targetScore}</b> per vincere.`);
   }
 
-  /***********************
-   * AI autoplay
-   ***********************/
   async function maybeAutoPlayAI() {
     if (State.possession !== "AI") return;
     if (State.phase === "GAME_OVER") return;
 
     UI.btnRoll.disabled = true;
-    await sleep(260);
+    await sleep(220);
 
     while (State.possession === "AI" && State.phase !== "GAME_OVER") {
       if (State.phase === "NEED_PLAYER") {
         setDice(null, null, null);
         await stepRollPlayer();
-        await sleep(220);
+        await sleep(180);
         continue;
       }
       if (State.phase === "NEED_ACTION") {
         UI.die2.textContent = "-";
         UI.die3.textContent = "-";
         await stepRollAction();
-        await sleep(220);
+        await sleep(180);
         continue;
       }
       if (State.phase === "NEED_RESULT") {
         await stepRollResult();
-        await sleep(220);
+        await sleep(180);
         continue;
       }
       if (State.phase === "NEED_REBOUND") {
         await stepRollRebound();
-        await sleep(220);
+        await sleep(180);
         continue;
       }
       break;
@@ -784,17 +738,17 @@ window.addEventListener("DOMContentLoaded", () => {
    * Bind UI
    ***********************/
   UI.btnGoPlay.addEventListener("click", async () => {
-    await ensureAudioReady(); // iOS/Safari friendly
+    await ensureAudioReady();
     applyTeamsFromInputsAndSave();
     showScreen("game");
     newGame();
   });
 
   UI.btnGoStats.addEventListener("click", () => showScreen("stats"));
-  UI.btnBackHome.addEventListener("click", () => {
-    showScreen("landing");
-    fillTeamInputsFromSaved();
-  });
+  UI.btnGoTutorial.addEventListener("click", () => showScreen("tutorial"));
+  UI.btnTutBack.addEventListener("click", () => showScreen("landing"));
+
+  UI.btnBackHome.addEventListener("click", () => { showScreen("landing"); fillTeamInputsFromSaved(); });
   UI.btnStatsBack.addEventListener("click", () => showScreen("landing"));
 
   UI.btnResetStats.addEventListener("click", () => {
@@ -804,7 +758,7 @@ window.addEventListener("DOMContentLoaded", () => {
   UI.btnSoundToggle.addEventListener("click", async () => {
     Sound.enabled = !Sound.enabled;
     UI.btnSoundToggle.setAttribute("aria-pressed", Sound.enabled ? "true" : "false");
-    UI.btnSoundToggle.textContent = Sound.enabled ? "🔊 Suoni: ON" : "🔇 Suoni: OFF";
+    UI.btnSoundToggle.textContent = Sound.enabled ? "🔊" : "🔇";
     if (Sound.enabled) await ensureAudioReady();
   });
 
@@ -837,7 +791,6 @@ window.addEventListener("DOMContentLoaded", () => {
     await ensureAudioReady();
 
     UI.btnRoll.disabled = true;
-
     try {
       if (State.phase === "NEED_PLAYER") {
         setDice(null, null, null);
@@ -851,9 +804,7 @@ window.addEventListener("DOMContentLoaded", () => {
       } else if (State.phase === "NEED_REBOUND") {
         await stepRollRebound();
       } else if (State.phase === "NEED_CHOICE") {
-        setStatus("Scegli tiro (sotto o 3)");
-      } else {
-        setStatus("Pronto");
+        setStatus("Scegli tiro");
       }
     } finally {
       if (State.phase !== "GAME_OVER") {
@@ -866,6 +817,6 @@ window.addEventListener("DOMContentLoaded", () => {
    * Init
    ***********************/
   fillTeamInputsFromSaved();
-  applyTeamsFromInputsAndSave(); // for labels even before playing
+  applyTeamsFromInputsAndSave();
   showScreen("landing");
 });
