@@ -1,4 +1,4 @@
-const CACHE_NAME = "basket-dice-v4";
+const CACHE_NAME = "basket-dice-v5";
 const ASSETS = [
   "./",
   "./index.html",
