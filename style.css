@@ -418,14 +418,28 @@ body{
 .dice3d .face.f5{ transform: rotateX(90deg) translateZ(calc(var(--s)/2)); }
 .dice3d .face.f6{ transform: rotateX(-90deg) translateZ(calc(var(--s)/2)); }
 
+/* Pips: more readable on colored dice */
 .dice3d .pip{
   position:absolute;
   width: 10px; height: 10px;
   border-radius: 50%;
-  background: rgba(255,255,255,.92);
-  box-shadow: 0 2px 6px rgba(0,0,0,.35);
-  opacity:.98;
+
+  /* bigger contrast */
+  background: rgba(255,255,255,.98);
+  box-shadow:
+    0 2px 8px rgba(0,0,0,.55),
+    0 0 0 2px rgba(0,0,0,.28); /* outline */
+  opacity: 1;
 }
+
+/* Optional: slightly bigger pips on mobile */
+@media (max-width: 520px){
+  .dice3d .pip{
+    width: 11px;
+    height: 11px;
+  }
+}
+
 
 /* pip layouts */
 .face.f1 .pip{ left:50%; top:50%; transform:translate(-50%,-50%); }
@@ -630,3 +644,4 @@ body{
   .roster-grid{ grid-template-columns: 1fr; }
   .roster-players{ grid-template-columns: 1fr; }
 }
+
