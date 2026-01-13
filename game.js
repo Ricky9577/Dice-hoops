@@ -482,23 +482,9 @@ window.addEventListener("DOMContentLoaded", () => {
   // ✅ 3D dice helpers
   function setDieValue(dieEl, value) {
   if (!dieEl) return;
-
   const v = Math.max(0, Math.min(6, value));
   dieEl.setAttribute("data-value", String(v));
-
-  // Create/update readable overlay number (keeps the 3D cube intact)
-  let badge = dieEl.querySelector(".die-num");
-  if (!badge) {
-    badge = document.createElement("div");
-    badge.className = "die-num";
-    dieEl.appendChild(badge);
-  }
-
-  const isDash = (v === 0);
-  badge.textContent = isDash ? "-" : String(v);
-  badge.classList.toggle("is-dash", isDash);
 }
-
 
   async function animateRoll(dieEl, finalValue) {
     if (!dieEl) return;
@@ -814,4 +800,5 @@ window.addEventListener("DOMContentLoaded", () => {
   setLang(State.lang);
   renderStatsUI();
 });
+
 
