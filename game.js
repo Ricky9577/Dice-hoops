@@ -1,7 +1,4 @@
 window.addEventListener("DOMContentLoaded", () => {
-  /***********************
-   * CONFIG
-   ***********************/
   const CONFIG = {
     targetScore: 21,
     rollAnimMs: 520,
@@ -10,9 +7,6 @@ window.addEventListener("DOMContentLoaded", () => {
     soundOnByDefault: true,
   };
 
-  /***********************
-   * i18n (minimal - keep your existing strings if you already have them)
-   ***********************/
   const I18N = {
     it: {
       landing_subtitle: "Turn-based • dadi • primo a 21",
@@ -48,6 +42,22 @@ window.addEventListener("DOMContentLoaded", () => {
       clank: "CLANK",
       turnover: "Turnover",
       rebound: "Rimbalzo",
+      stats_sub: "Tutto salvato in locale",
+      reset_stats: "Reset statistiche",
+      tutorial_sub: "Regole e consigli",
+      t1_title: "Come si gioca",
+      t1_1: "Premi <b>Lancia</b>.",
+      t1_2: "<b>Dado 1</b> sceglie il giocatore (1–6).",
+      t1_3: "<b>Dado 2</b> sceglie l’azione (turnover / tiro / scelta).",
+      t1_4: "<b>Dado 3</b> determina l’esito del tiro (pesato dalle skill).",
+      t1_5: "Se sbagli: tiri per il rimbalzo (dipende dalla skill rimbalzo).",
+      t2_title: "Azioni (Dado 2)",
+      t2_1: "<b>1</b> = palla persa (cambio possesso)",
+      t2_2: "<b>2–3</b> = tiro da sotto (2 punti)",
+      t2_3: "<b>4–5</b> = tiro da 3 (3 punti)",
+      t2_4: "<b>6</b> = scegli tu (e il Dado 3 parte da solo)",
+      t3_title: "Obiettivo",
+      t3_1: "Vince chi arriva per primo a <b>21</b>."
     },
     en: {
       landing_subtitle: "Turn-based • dice • first to 21",
@@ -83,6 +93,22 @@ window.addEventListener("DOMContentLoaded", () => {
       clank: "CLANK",
       turnover: "Turnover",
       rebound: "Rebound",
+      stats_sub: "Saved locally",
+      reset_stats: "Reset stats",
+      tutorial_sub: "Rules & tips",
+      t1_title: "How to play",
+      t1_1: "Press <b>Roll</b>.",
+      t1_2: "<b>Die 1</b> picks the player (1–6).",
+      t1_3: "<b>Die 2</b> picks the action (turnover / shot / choice).",
+      t1_4: "<b>Die 3</b> resolves the shot (weighted by skills).",
+      t1_5: "If you miss: roll for rebound (depends on rebound skill).",
+      t2_title: "Actions (Die 2)",
+      t2_1: "<b>1</b> = turnover (possession changes)",
+      t2_2: "<b>2–3</b> = close shot (2 points)",
+      t2_3: "<b>4–5</b> = 3pt shot (3 points)",
+      t2_4: "<b>6</b> = you choose (Die 3 auto-rolls)",
+      t3_title: "Goal",
+      t3_1: "First to <b>21</b> wins."
     },
     es: {
       landing_subtitle: "Por turnos • dados • primero a 21",
@@ -118,6 +144,22 @@ window.addEventListener("DOMContentLoaded", () => {
       clank: "CLANK",
       turnover: "Pérdida",
       rebound: "Rebote",
+      stats_sub: "Guardado localmente",
+      reset_stats: "Reset estadísticas",
+      tutorial_sub: "Reglas y consejos",
+      t1_title: "Cómo jugar",
+      t1_1: "Pulsa <b>Lanzar</b>.",
+      t1_2: "<b>Dado 1</b> elige el jugador (1–6).",
+      t1_3: "<b>Dado 2</b> elige la acción (pérdida / tiro / elección).",
+      t1_4: "<b>Dado 3</b> resuelve el tiro (según habilidades).",
+      t1_5: "Si fallas: tira por el rebote (según rebote).",
+      t2_title: "Acciones (Dado 2)",
+      t2_1: "<b>1</b> = pérdida (cambia posesión)",
+      t2_2: "<b>2–3</b> = tiro cerca (2 puntos)",
+      t2_3: "<b>4–5</b> = tiro de 3 (3 puntos)",
+      t2_4: "<b>6</b> = eliges tú (Dado 3 automático)",
+      t3_title: "Objetivo",
+      t3_1: "Gana el primero en llegar a <b>21</b>."
     }
   };
 
@@ -126,22 +168,12 @@ window.addEventListener("DOMContentLoaded", () => {
   const State = {
     lang: localStorage.getItem("bd_lang") || "it",
     soundOn: (localStorage.getItem("bd_sound") ?? String(CONFIG.soundOnByDefault)) === "true",
-
     possession: "HUMAN",
     scores: { HUMAN: 0, AI: 0 },
     activePlayerId: null,
     phase: "NEED_PLAYER",
     lastShotType: null,
-
-    st: {
-      human2_att: 0, human3_att: 0,
-      human2_made: 0, human3_made: 0
-    }
-  };
-
-  const MatchStats = {
-    twoMade: 0, twoAtt: 0,
-    threeMade: 0, threeAtt: 0
+    st: { human2_att: 0, human3_att: 0, human2_made: 0, human3_made: 0 }
   };
 
   const UI = {
@@ -194,7 +226,6 @@ window.addEventListener("DOMContentLoaded", () => {
     ballShot: $("ballShot"),
 
     btnSoundToggle: $("btnSoundToggle"),
-    matchSubtitle: $("matchSubtitle"),
 
     statsBox: $("statsBox"),
     btnResetStats: $("btnResetStats"),
@@ -223,14 +254,11 @@ window.addEventListener("DOMContentLoaded", () => {
       s.classList.remove("screen--active");
       s.setAttribute("aria-hidden", "true");
     });
-
     which.classList.add("screen--active");
     which.setAttribute("aria-hidden", "false");
   }
 
-  /***********************
-   * Simple sound
-   ***********************/
+  // Sound
   let _audioCtx = null;
   function getAudioCtx() {
     if (_audioCtx) return _audioCtx;
@@ -254,25 +282,19 @@ window.addEventListener("DOMContentLoaded", () => {
     clank(){ beep(240, .05, "square", .06); beep(180, .06, "square", .05); },
     click(){ beep(520, .03, "triangle", .04); }
   };
-
   function setSound(on) {
     State.soundOn = on;
     localStorage.setItem("bd_sound", String(on));
-    if (UI.btnSoundToggle) {
-      UI.btnSoundToggle.textContent = on ? "🔊" : "🔇";
-      UI.btnSoundToggle.setAttribute("aria-pressed", on ? "true" : "false");
-    }
+    UI.btnSoundToggle.textContent = on ? "🔊" : "🔇";
+    UI.btnSoundToggle.setAttribute("aria-pressed", on ? "true" : "false");
   }
 
-  /***********************
-   * Storage (teams/stats)
-   ***********************/
+  // Storage
   function loadTeams() {
     try { return JSON.parse(localStorage.getItem("bd_teams") || "{}"); } catch { return {}; }
   }
-  function saveTeams(obj) {
-    localStorage.setItem("bd_teams", JSON.stringify(obj));
-  }
+  function saveTeams(obj) { localStorage.setItem("bd_teams", JSON.stringify(obj)); }
+
   function fillTeamInputsFromSaved() {
     const saved = loadTeams();
     if (saved.hName) UI.teamHumanName.value = saved.hName;
@@ -285,19 +307,13 @@ window.addEventListener("DOMContentLoaded", () => {
   function loadStats() {
     try { return JSON.parse(localStorage.getItem("bd_stats") || "{}"); } catch { return {}; }
   }
-  function saveStats(obj) {
-    localStorage.setItem("bd_stats", JSON.stringify(obj));
-  }
-  function resetStats() {
-    saveStats({});
-    renderStatsUI();
-  }
+  function saveStats(obj) { localStorage.setItem("bd_stats", JSON.stringify(obj)); }
+  function resetStats() { saveStats({}); renderStatsUI(); }
   function renderStatsUI() {
     const st = loadStats();
     const totalGames = st.games || 0;
     const wins = st.wins || 0;
     const losses = st.losses || 0;
-
     UI.statsBox.innerHTML = `
       <div style="display:grid; gap:10px">
         <div><b>${t("stats")}</b></div>
@@ -306,88 +322,6 @@ window.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
   }
-
-  /***********************
-   * Helpers
-   ***********************/
-  function rollDie() { return Math.floor(Math.random() * 6) + 1; }
-  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-  function skillBadge(label, level) {
-    const cls = level === "good" ? "good" : level === "bad" ? "bad" : "medium";
-    return `<span class="badge ${cls}">${label}: ${level}</span>`;
-  }
-
-  function actionFromDie(value) {
-    if (value === 1) return { type: "turnover" };
-    if (value === 2 || value === 3) return { type: "close" };
-    if (value === 4 || value === 5) return { type: "three" };
-    return { type: "choose" };
-  }
-
-  function shotThreshold(skillLevel) {
-    if (skillLevel === "good") return { scoreMin: 3 };
-    if (skillLevel === "bad") return { scoreMin: 5 };
-    return { scoreMin: 4 };
-  }
-
-  function reboundSuccessOn(skillLevel) {
-    if (skillLevel === "strong") return { min: 4 };
-    if (skillLevel === "weak") return { min: 6 };
-    return { min: 5 };
-  }
-
-  function levelToScore(lvl){
-    return lvl === "good" ? 82 : lvl === "medium" ? 60 : 35;
-  }
-
-  /***********************
-   * Teams
-   ***********************/
-  function makeTeam(name, playersNames) {
-    const names = playersNames || [
-      "Playmaker 1","Playmaker 2","All-around 3","All-around 4","Big 5","Big 6"
-    ];
-    const players = [
-      { id: 1, name: names[0], shooting_close: "bad", shooting_3: "good", rebound: "weak" },
-      { id: 2, name: names[1], shooting_close: "bad", shooting_3: "good", rebound: "weak" },
-      { id: 3, name: names[2], shooting_close: "medium", shooting_3: "medium", rebound: "medium" },
-      { id: 4, name: names[3], shooting_close: "medium", shooting_3: "medium", rebound: "medium" },
-      { id: 5, name: names[4], shooting_close: "good", shooting_3: "bad", rebound: "strong" },
-      { id: 6, name: names[5], shooting_close: "good", shooting_3: "bad", rebound: "strong" },
-    ];
-    return { name, players };
-  }
-
-  function applyTeamsFromInputsAndSave() {
-    const hName = (UI.teamHumanName.value || "YOU").trim();
-    const aName = (UI.teamAIName.value || "AI").trim();
-    const players = [UI.p1.value, UI.p2.value, UI.p3.value, UI.p4.value, UI.p5.value, UI.p6.value].map(s => (s||"").trim());
-
-    saveTeams({ hName, aName, players });
-    humanTeam = makeTeam(hName, players);
-    aiTeam = makeTeam(aName, ["AI 1","AI 2","AI 3","AI 4","AI 5","AI 6"]);
-
-    UI.labelHuman.textContent = humanTeam.name;
-    UI.labelAI.textContent = aiTeam.name;
-    setPossessionPill();
-  }
-
-  let humanTeam = makeTeam("YOU");
-  let aiTeam = makeTeam("AI");
-
-  function teamOf(possession) {
-    return possession === "HUMAN" ? humanTeam : aiTeam;
-  }
-
-  /***********************
-   * Match stats
-   ***********************/
-  function resetMatchStats(){
-    MatchStats.twoMade=0; MatchStats.twoAtt=0;
-    MatchStats.threeMade=0; MatchStats.threeAtt=0;
-  }
-
   function commitMatchToGlobalStats(humanWon){
     const st = loadStats();
     st.games = (st.games || 0) + 1;
@@ -396,9 +330,10 @@ window.addEventListener("DOMContentLoaded", () => {
     saveStats(st);
   }
 
-  /***********************
-   * UI render
-   ***********************/
+  // Helpers
+  function rollDie() { return Math.floor(Math.random() * 6) + 1; }
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
   function logLine(html) {
     const div = document.createElement("div");
     div.className = "log-line";
@@ -419,22 +354,59 @@ window.addEventListener("DOMContentLoaded", () => {
     UI.scoreAI.textContent = String(State.scores.AI);
   }
 
-  function setDice(d1, d2, d3) {
-    UI.die1.textContent = d1 ?? "-";
-    UI.die2.textContent = d2 ?? "-";
-    UI.die3.textContent = d3 ?? "-";
+  // Skills
+  function skillBadge(label, level) {
+    const cls = level === "good" ? "good" : level === "bad" ? "bad" : "medium";
+    return `<span class="badge ${cls}">${label}: ${level}</span>`;
+  }
+  function actionFromDie(value) {
+    if (value === 1) return { type: "turnover" };
+    if (value === 2 || value === 3) return { type: "close" };
+    if (value === 4 || value === 5) return { type: "three" };
+    return { type: "choose" };
+  }
+  function shotThreshold(skillLevel) {
+    if (skillLevel === "good") return { scoreMin: 3 };
+    if (skillLevel === "bad") return { scoreMin: 5 };
+    return { scoreMin: 4 };
+  }
+  function reboundSuccessOn(skillLevel) {
+    if (skillLevel === "strong") return { min: 4 };
+    if (skillLevel === "weak") return { min: 6 };
+    return { min: 5 };
   }
 
-  async function animateRoll(dieEl, finalValue) {
-    dieEl.classList.add("rolling");
-    const start = Date.now();
-    while (Date.now() - start < CONFIG.rollAnimMs) {
-      dieEl.textContent = String(rollDie());
-      await sleep(60);
-    }
-    dieEl.classList.remove("rolling");
-    dieEl.textContent = String(finalValue);
+  // Teams
+  function makeTeam(name, playersNames) {
+    const names = playersNames || ["Playmaker 1","Playmaker 2","All-around 3","All-around 4","Big 5","Big 6"];
+    const players = [
+      { id: 1, name: names[0], shooting_close: "bad", shooting_3: "good", rebound: "weak" },
+      { id: 2, name: names[1], shooting_close: "bad", shooting_3: "good", rebound: "weak" },
+      { id: 3, name: names[2], shooting_close: "medium", shooting_3: "medium", rebound: "medium" },
+      { id: 4, name: names[3], shooting_close: "medium", shooting_3: "medium", rebound: "medium" },
+      { id: 5, name: names[4], shooting_close: "good", shooting_3: "bad", rebound: "strong" },
+      { id: 6, name: names[5], shooting_close: "good", shooting_3: "bad", rebound: "strong" },
+    ];
+    return { name, players };
   }
+
+  let humanTeam = makeTeam("YOU");
+  let aiTeam = makeTeam("AI");
+
+  function applyTeamsFromInputsAndSave() {
+    const hName = (UI.teamHumanName.value || "YOU").trim();
+    const aName = (UI.teamAIName.value || "AI").trim();
+    const players = [UI.p1.value, UI.p2.value, UI.p3.value, UI.p4.value, UI.p5.value, UI.p6.value].map(s => (s||"").trim());
+    saveTeams({ hName, aName, players });
+
+    humanTeam = makeTeam(hName, players);
+    aiTeam = makeTeam(aName, ["AI 1","AI 2","AI 3","AI 4","AI 5","AI 6"]);
+    UI.labelHuman.textContent = humanTeam.name;
+    UI.labelAI.textContent = aiTeam.name;
+    setPossessionPill();
+  }
+
+  function teamOf(possession) { return possession === "HUMAN" ? humanTeam : aiTeam; }
 
   function getActivePlayer() {
     const tTeam = teamOf(State.possession);
@@ -454,70 +426,51 @@ window.addEventListener("DOMContentLoaded", () => {
       skillBadge("close", p.shooting_close) +
       skillBadge("3pt", p.shooting_3) +
       skillBadge("rebound", p.rebound);
-
-    if (!UI.shotmeterFill) return;
-    const lvl = State.lastShotType === "close" ? p.shooting_close : p.shooting_3;
-    UI.shotmeterFill.style.width = `${levelToScore(lvl)}%`;
   }
 
-  /***********************
-   * FX
-   ***********************/
+  // FX
   function fxFlash() {
-    if (!UI.fxFlash) return;
     UI.fxFlash.classList.add("on");
     setTimeout(() => UI.fxFlash.classList.remove("on"), 170);
   }
-
   function fxBanner(text, kind) {
-    if (!UI.fxBanner || !UI.fxBannerText) return;
     UI.fxBannerText.textContent = text;
     UI.fxBannerText.classList.remove("good", "bad");
     UI.fxBannerText.classList.add(kind);
     UI.fxBanner.classList.add("on");
     setTimeout(() => UI.fxBanner.classList.remove("on"), CONFIG.fxDurationMs);
   }
-
   function fxFloat(text) {
-    if (!UI.fxFloat) return;
     UI.fxFloat.textContent = text;
     UI.fxFloat.classList.add("on");
     setTimeout(() => UI.fxFloat.classList.remove("on"), 420);
   }
 
-  // ✅ DEFINITIVO: calcola dx/dy verso il ferro in base alla posizione reale (mobile-safe)
+  // ✅ Ball animation targets hoop (in flow)
   function animateBall(made) {
-    if (!UI.ballShot) return;
-
     const ballEl = UI.ballShot;
     const hoopEl = document.querySelector(".hoop");
     const parentEl = ballEl.offsetParent || document.body;
 
     try {
-      if (hoopEl) {
-        const parentRect = parentEl.getBoundingClientRect();
-        const ballRect = ballEl.getBoundingClientRect();
-        const hoopRect = hoopEl.getBoundingClientRect();
+      const parentRect = parentEl.getBoundingClientRect();
+      const ballRect = ballEl.getBoundingClientRect();
+      const hoopRect = hoopEl.getBoundingClientRect();
 
-        const ballCX = (ballRect.left + ballRect.right) / 2 - parentRect.left;
-        const ballCY = (ballRect.top + ballRect.bottom) / 2 - parentRect.top;
+      const ballCX = (ballRect.left + ballRect.right) / 2 - parentRect.left;
+      const ballCY = (ballRect.top + ballRect.bottom) / 2 - parentRect.top;
 
-        // rim center (slightly adjusted down = more realistic)
-        const rimCX = (hoopRect.left + hoopRect.right) / 2 - parentRect.left;
-        const rimCY = (hoopRect.top + hoopRect.bottom) / 2 - parentRect.top + hoopRect.height * 0.08;
+      const rimCX = (hoopRect.left + hoopRect.right) / 2 - parentRect.left;
+      const rimCY = (hoopRect.top + hoopRect.bottom) / 2 - parentRect.top + hoopRect.height * 0.20;
 
-        const dx = rimCX - ballCX;
-        const dy = rimCY - ballCY;
+      const dx = rimCX - ballCX;
+      const dy = rimCY - ballCY;
 
-        ballEl.style.setProperty("--dx", `${dx.toFixed(1)}px`);
-        ballEl.style.setProperty("--dy", `${dy.toFixed(1)}px`);
-      } else {
-        ballEl.style.setProperty("--dx", "0px");
-        ballEl.style.setProperty("--dy", "-180px");
-      }
+      ballEl.style.setProperty("--dx", `${dx.toFixed(1)}px`);
+      ballEl.style.setProperty("--dy", `${dy.toFixed(1)}px`);
     } catch {
       ballEl.style.setProperty("--dx", "0px");
-      ballEl.style.setProperty("--dy", "-180px");
+      ballEl.style.setProperty("--dy", "-160px");
     }
 
     ballEl.classList.remove("make", "miss", "on");
@@ -526,9 +479,34 @@ window.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => ballEl.classList.remove("on", "make", "miss"), 900);
   }
 
-  /***********************
-   * AI
-   ***********************/
+  // ✅ 3D dice helpers
+  function setDieValue(dieEl, value) {
+    if (!dieEl) return;
+    const v = Math.max(0, Math.min(6, value));
+    dieEl.setAttribute("data-value", String(v));
+  }
+
+  async function animateRoll(dieEl, finalValue) {
+    if (!dieEl) return;
+    dieEl.classList.add("rolling3d");
+
+    const start = Date.now();
+    while (Date.now() - start < CONFIG.rollAnimMs) {
+      setDieValue(dieEl, rollDie());
+      await sleep(70);
+    }
+
+    dieEl.classList.remove("rolling3d");
+    setDieValue(dieEl, finalValue);
+  }
+
+  function resetDice() {
+    setDieValue(UI.die1, 0);
+    setDieValue(UI.die2, 0);
+    setDieValue(UI.die3, 0);
+  }
+
+  // AI
   function aiChooseShotType(player) {
     const closeLevel = player.shooting_close;
     const threeLevel = player.shooting_3;
@@ -542,9 +520,6 @@ window.addEventListener("DOMContentLoaded", () => {
     return score(closeLevel) >= score(threeLevel) ? "close" : "three";
   }
 
-  /***********************
-   * Game flow
-   ***********************/
   function checkGameOver() {
     const h = State.scores.HUMAN;
     const a = State.scores.AI;
@@ -566,7 +541,7 @@ window.addEventListener("DOMContentLoaded", () => {
     State.phase = "NEED_PLAYER";
     setPossessionPill();
     renderActivePlayer();
-    setDice(null, null, null);
+    resetDice();
     setStatus("Lancia Dado 1…");
   }
 
@@ -575,7 +550,6 @@ window.addEventListener("DOMContentLoaded", () => {
     await animateRoll(UI.die1, v);
     State.activePlayerId = v;
     renderActivePlayer();
-
     const p = getActivePlayer();
     logLine(`<b>${State.possession === "HUMAN" ? humanTeam.name : aiTeam.name}</b>: Dado 1 = <b>${v}</b> → ${p.name}`);
     State.phase = "NEED_ACTION";
@@ -617,9 +591,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     State.lastShotType = action.type;
     State.phase = "NEED_RESULT";
-    renderActivePlayer();
     setStatus(t("rolling"));
-
     if (State.possession === "AI") await maybeAutoPlayAI();
   }
 
@@ -638,13 +610,6 @@ window.addEventListener("DOMContentLoaded", () => {
     const made = v >= thr.scoreMin;
     const points = shotType === "close" ? 2 : 3;
 
-    // attempt stats (only you)
-    if (State.possession === "HUMAN") {
-      if (shotType === "close") State.st.human2_att += 1;
-      if (shotType === "three") State.st.human3_att += 1;
-    }
-
-    // ✅ palla sempre legata al ferro
     animateBall(made);
 
     if (made) {
@@ -656,11 +621,6 @@ window.addEventListener("DOMContentLoaded", () => {
       fxFloat(`+${points}`);
       sfx.swish();
 
-      if (State.possession === "HUMAN") {
-        if (shotType === "close") State.st.human2_made += 1;
-        if (shotType === "three") State.st.human3_made += 1;
-      }
-
       if (checkGameOver()) return;
 
       await sleep(420);
@@ -669,7 +629,6 @@ window.addEventListener("DOMContentLoaded", () => {
     } else {
       fxBanner(t("clank"), "bad");
       sfx.clank();
-
       State.phase = "NEED_REBOUND";
       setStatus(`${t("rebound")}…`);
       if (State.possession === "AI") await maybeAutoPlayAI();
@@ -691,8 +650,8 @@ window.addEventListener("DOMContentLoaded", () => {
       logLine(`🏀 ${t("rebound")} (${p.name})`);
       State.phase = "NEED_ACTION";
       State.lastShotType = null;
-      UI.die2.textContent = "-";
-      UI.die3.textContent = "-";
+      setDieValue(UI.die2, 0);
+      setDieValue(UI.die3, 0);
       setStatus("Lancia Dado 2…");
       if (State.possession === "AI") await maybeAutoPlayAI();
     } else {
@@ -708,12 +667,9 @@ window.addEventListener("DOMContentLoaded", () => {
     UI.btnRoll.disabled = true;
     await sleep(120);
     await stepRollResult();
-    if (!checkGameOver()) UI.btnRoll.disabled = (State.phase !== "NEED_PLAYER" && State.phase !== "NEED_ACTION" && State.phase !== "NEED_RESULT" && State.phase !== "NEED_REBOUND") ? true : false;
+    if (!checkGameOver()) UI.btnRoll.disabled = (State.phase === "NEED_CHOICE");
   }
 
-  /***********************
-   * AI autoplay
-   ***********************/
   async function maybeAutoPlayAI() {
     if (State.possession !== "AI") return;
     if (checkGameOver()) return;
@@ -732,13 +688,8 @@ window.addEventListener("DOMContentLoaded", () => {
     UI.btnRoll.disabled = (State.phase === "NEED_CHOICE");
   }
 
-  /***********************
-   * New game
-   ***********************/
   function newGame() {
     applyTeamsFromInputsAndSave();
-    resetMatchStats();
-
     State.possession = "HUMAN";
     State.scores = { HUMAN: 0, AI: 0 };
     State.activePlayerId = null;
@@ -752,87 +703,68 @@ window.addEventListener("DOMContentLoaded", () => {
     renderScores();
     setPossessionPill();
     renderActivePlayer();
-    setDice(null, null, null);
+    resetDice();
     setStatus("Lancia Dado 1…");
     logLine(`🏁 Nuova partita. Arriva a <b>${CONFIG.targetScore}</b> per vincere.`);
   }
 
-  /***********************
-   * Events
-   ***********************/
-  UI.btnGoPlay?.addEventListener("click", () => {
+  // Events
+  UI.btnGoPlay.addEventListener("click", () => {
     applyTeamsFromInputsAndSave();
     showScreen(UI.screenGame);
     newGame();
   });
+  UI.btnGoStats.addEventListener("click", () => { renderStatsUI(); showScreen(UI.screenStats); });
+  UI.btnGoTutorial.addEventListener("click", () => showScreen(UI.screenTutorial));
 
-  UI.btnGoStats?.addEventListener("click", () => {
-    renderStatsUI();
-    showScreen(UI.screenStats);
-  });
+  UI.btnBackHome.addEventListener("click", () => showScreen(UI.screenLanding));
+  UI.btnStatsBack.addEventListener("click", () => showScreen(UI.screenLanding));
+  UI.btnTutorialBack.addEventListener("click", () => showScreen(UI.screenLanding));
 
-  UI.btnGoTutorial?.addEventListener("click", () => showScreen(UI.screenTutorial));
+  UI.btnResetStats.addEventListener("click", resetStats);
+  UI.btnNew.addEventListener("click", newGame);
 
-  UI.btnBackHome?.addEventListener("click", () => showScreen(UI.screenLanding));
-  UI.btnStatsBack?.addEventListener("click", () => showScreen(UI.screenLanding));
-  UI.btnTutorialBack?.addEventListener("click", () => showScreen(UI.screenLanding));
+  UI.btnSoundToggle.addEventListener("click", () => { setSound(!State.soundOn); sfx.click(); });
 
-  UI.btnResetStats?.addEventListener("click", resetStats);
-
-  UI.btnSoundToggle?.addEventListener("click", async () => {
-    setSound(!State.soundOn);
-    sfx.click();
-  });
-
-  UI.btnNew?.addEventListener("click", newGame);
-
-  UI.btnChooseClose?.addEventListener("click", async () => {
+  UI.btnChooseClose.addEventListener("click", async () => {
     if (State.phase !== "NEED_CHOICE") return;
     State.lastShotType = "close";
     State.phase = "NEED_RESULT";
-    renderActivePlayer();
     await autoRollAfterChoice();
   });
-
-  UI.btnChooseThree?.addEventListener("click", async () => {
+  UI.btnChooseThree.addEventListener("click", async () => {
     if (State.phase !== "NEED_CHOICE") return;
     State.lastShotType = "three";
     State.phase = "NEED_RESULT";
-    renderActivePlayer();
     await autoRollAfterChoice();
   });
 
-  UI.btnRoll?.addEventListener("click", async () => {
+  UI.btnRoll.addEventListener("click", async () => {
     if (checkGameOver()) return;
 
     UI.btnRoll.disabled = true;
 
     try {
       if (State.phase === "NEED_PLAYER") {
-        setDice(null, null, null);
+        resetDice();
         await stepRollPlayer();
-        State.phase = "NEED_ACTION";
         UI.btnRoll.disabled = false;
-        setStatus("Lancia Dado 2…");
         return;
       }
-
       if (State.phase === "NEED_ACTION") {
-        UI.die2.textContent = "-";
-        UI.die3.textContent = "-";
+        setDieValue(UI.die2, 0);
+        setDieValue(UI.die3, 0);
         await stepRollAction();
+        UI.btnRoll.disabled = (State.phase === "NEED_CHOICE");
         if (State.phase === "NEED_RESULT") UI.btnRoll.disabled = false;
-        if (State.phase === "NEED_CHOICE") UI.btnRoll.disabled = true;
         return;
       }
-
       if (State.phase === "NEED_RESULT") {
         await stepRollResult();
         if (State.phase === "NEED_REBOUND") UI.btnRoll.disabled = false;
         if (State.phase === "NEED_PLAYER") UI.btnRoll.disabled = false;
         return;
       }
-
       if (State.phase === "NEED_REBOUND") {
         await stepRollRebound();
         UI.btnRoll.disabled = (State.phase === "NEED_CHOICE");
@@ -840,29 +772,19 @@ window.addEventListener("DOMContentLoaded", () => {
         if (State.phase === "NEED_PLAYER") UI.btnRoll.disabled = false;
         return;
       }
-
-      if (State.phase === "NEED_CHOICE") {
-        UI.btnRoll.disabled = true;
-        return;
-      }
     } finally {
       if (!checkGameOver()) {
-        if (State.possession === "HUMAN") {
-          UI.btnRoll.disabled = (State.phase === "NEED_CHOICE");
-        } else {
-          UI.btnRoll.disabled = true;
-        }
+        if (State.possession === "HUMAN") UI.btnRoll.disabled = (State.phase === "NEED_CHOICE");
+        else UI.btnRoll.disabled = true;
       }
     }
   });
 
-  UI.langSelect?.addEventListener("change", (e) => {
-    setLang(e.target.value);
-  });
+  UI.langSelect.addEventListener("change", (e) => setLang(e.target.value));
 
-  // Save teams live as user types
+  // Save teams live
   [UI.teamHumanName, UI.teamAIName, UI.p1, UI.p2, UI.p3, UI.p4, UI.p5, UI.p6].forEach(el => {
-    el?.addEventListener("input", () => {
+    el.addEventListener("input", () => {
       const hName = (UI.teamHumanName.value || "YOU").trim();
       const aName = (UI.teamAIName.value || "AI").trim();
       const players = [UI.p1.value, UI.p2.value, UI.p3.value, UI.p4.value, UI.p5.value, UI.p6.value].map(s => (s||"").trim());
@@ -870,12 +792,11 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  /***********************
-   * Init
-   ***********************/
+  // Init
   fillTeamInputsFromSaved();
   applyTeamsFromInputsAndSave();
   setSound(State.soundOn);
+  UI.langSelect.value = State.lang;
   setLang(State.lang);
   renderStatsUI();
 });
