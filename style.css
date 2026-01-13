@@ -303,10 +303,15 @@ input::placeholder{ color: rgba(255,255,255,.45); }
   left: 50%;
   transform: translateX(-50%);
   width: 128px;
-  height: 96px;
+  height: 110px;
   z-index: 3;
   pointer-events:none;
+
+  /* key: expose rim center for ball target */
+  --rimX: 50%;
+  --rimY: 58px;
 }
+
 /* backboard */
 .hoop::before{
   content:"";
@@ -314,8 +319,8 @@ input::placeholder{ color: rgba(255,255,255,.45); }
   left: 50%;
   top: 0;
   transform: translateX(-50%);
-  width: 110px;
-  height: 62px;
+  width: 116px;
+  height: 66px;
   border-radius: 10px;
   background:
     linear-gradient(180deg, rgba(255,255,255,.18), rgba(0,0,0,.18)),
@@ -323,28 +328,30 @@ input::placeholder{ color: rgba(255,255,255,.45); }
   border: 1px solid rgba(255,255,255,.16);
   box-shadow: 0 14px 30px rgba(0,0,0,.40);
 }
+
 /* rim */
 .hoop::after{
   content:"";
   position:absolute;
-  left: 50%;
-  top: 46px;
+  left: var(--rimX);
+  top: calc(var(--rimY) - 10px);
   transform: translateX(-50%);
   width: 92px;
-  height: 18px;
+  height: 20px;
   border: 4px solid rgba(255,138,31,.98);
   border-top: none;
-  border-radius: 0 0 44px 44px;
+  border-radius: 0 0 46px 46px;
   box-shadow: 0 12px 24px rgba(0,0,0,.40);
 }
-/* simple net */
+
+/* net (below rim) */
 .hoop .net{
   position:absolute;
-  left: 50%;
-  top: 60px;
+  left: var(--rimX);
+  top: calc(var(--rimY) + 6px);
   transform: translateX(-50%);
-  width: 76px;
-  height: 34px;
+  width: 74px;
+  height: 42px;
   border-radius: 0 0 40px 40px;
   background:
     repeating-linear-gradient(90deg, rgba(255,255,255,.18) 0 2px, transparent 2px 10px),
@@ -352,6 +359,7 @@ input::placeholder{ color: rgba(255,255,255,.45); }
   clip-path: polygon(0 0, 100% 0, 86% 100%, 14% 100%);
   opacity:.55;
 }
+
 
 .ball-shot{
   position:absolute;
@@ -388,22 +396,22 @@ input::placeholder{ color: rgba(255,255,255,.45); }
 }
 .ball-shot.on{ opacity:1; }
 
-/* More realistic arc + drop (make) */
+/* MAKE: arc -> rim center -> drop through net */
 @keyframes shot-make{
-  0%   { transform:translate(-50%, 0) scale(1); filter: blur(0); }
-  35%  { transform:translate(calc(-50% - 14px), -140px) scale(.92); }
-  70%  { transform:translate(-50%, -210px) scale(.78); }
-  88%  { transform:translate(-50%, -232px) scale(.70); opacity:1; }
-  100% { transform:translate(-50%, -250px) scale(.62); opacity:0; }
+  0%   { transform: translate(-50%, 0) scale(1); opacity:1; }
+  55%  { transform: translate(-50%, -205px) scale(.78); opacity:1; } /* arrive at rim */
+  72%  { transform: translate(-50%, -220px) scale(.72); opacity:1; } /* hover on rim */
+  100% { transform: translate(-50%, -150px) scale(.66); opacity:0; } /* drop below rim (net) */
 }
-/* Miss: arc → rim → ricochet down */
+
+/* MISS: arc -> hit rim -> ricochet right/down */
 @keyframes shot-miss{
-  0%   { transform:translate(-50%, 0) scale(1); }
-  35%  { transform:translate(calc(-50% - 10px), -130px) scale(.92); }
-  68%  { transform:translate(calc(-50% + 8px), -190px) scale(.80); }
-  78%  { transform:translate(calc(-50% + 22px), -178px) scale(.82); }
-  100% { transform:translate(calc(-50% + 120px), -60px) scale(.80); opacity:0; }
+  0%   { transform: translate(-50%, 0) scale(1); opacity:1; }
+  55%  { transform: translate(-50%, -205px) scale(.78); opacity:1; }  /* reach rim */
+  66%  { transform: translate(calc(-50% + 18px), -196px) scale(.80); opacity:1; } /* CLANK */
+  100% { transform: translate(calc(-50% + 150px), -70px) scale(.86); opacity:0; }
 }
+
 
 .ball-shot.make{ animation: shot-make .78s cubic-bezier(.18,.82,.22,1) forwards; }
 .ball-shot.miss{ animation: shot-miss .82s cubic-bezier(.18,.82,.22,1) forwards; }

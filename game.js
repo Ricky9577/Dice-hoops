@@ -395,16 +395,47 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   function ballAnim(kind) {
-    if (!UI.ballShot) return;
-    UI.ballShot.classList.remove("make", "miss");
-    UI.ballShot.classList.add("on");
-    // force reflow
-    void UI.ballShot.offsetWidth;
-    UI.ballShot.classList.add(kind);
-    setTimeout(() => {
-      UI.ballShot.classList.remove("on", "make", "miss");
-    }, 900);
+  if (!UI.ballShot) return;
+
+  // 1) trova centro del ferro usando il box della hoop
+  const hoopEl = document.querySelector(".hoop");
+  if (hoopEl) {
+    const hoopRect = hoopEl.getBoundingClientRect();
+    const ballRect = UI.ballShot.getBoundingClientRect();
+
+    // rim center (x) in viewport coordinates
+    const rimX = hoopRect.left + hoopRect.width * 0.5;
+
+    // posiziona la palla orizzontalmente in modo che il suo centro coincida col centro ferro
+    const ballCenterOffset = ballRect.width / 2;
+    const leftPx = rimX - ballCenterOffset;
+
+    // applichiamo left in px (override del left:50% CSS)
+    UI.ballShot.style.left = `${leftPx}px`;
+    UI.ballShot.style.transform = `translateY(0)`; // annulla translateX(-50%) durante l'anim
+  } else {
+    // fallback (vecchio comportamento)
+    UI.ballShot.style.left = `50%`;
+    UI.ballShot.style.transform = `translateX(-50%)`;
   }
+
+  // 2) trigger animazione
+  UI.ballShot.classList.remove("make", "miss");
+  UI.ballShot.classList.add("on");
+
+  // force reflow
+  void UI.ballShot.offsetWidth;
+
+  UI.ballShot.classList.add(kind);
+
+  setTimeout(() => {
+    UI.ballShot.classList.remove("on", "make", "miss");
+    // ripristina default per non rompere layout
+    UI.ballShot.style.left = "";
+    UI.ballShot.style.transform = "";
+  }, 950);
+}
+
 
   async function animateRoll(dieEl, finalValue) {
     ensureDieDOM(dieEl);
