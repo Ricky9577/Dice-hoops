@@ -251,13 +251,14 @@
         <div class="topbar-actions">
           <button class="btn small" id="btnBackHome" title="Menu">⌂</button>
           <button class="btn small" id="btnSoundToggle" aria-pressed="true" title="Sound">🔊</button>
+          <button class="btn small" id="btnNew" title="Nuova partita" aria-label="Nuova partita">↻</button>
         </div>
       </header>
 
       <main class="game">
         <section class="court">
           <div class="court-overlay">
-            <div class="hoop"></div>
+            <div class="hoop"><div class="net"></div></div>
             <div class="ball-shot" id="ballShot" aria-hidden="true"></div>
 
             <div class="fx-flash" id="fxFlash" aria-hidden="true"></div>
@@ -293,19 +294,19 @@
             <div class="dice-row">
               <div class="die-card">
                 <div class="die-title" data-i18n="die1">Dado 1</div>
-                <div class="die big" id="die1">-</div>
+                <div class="die big die--p" id="die1" aria-label="Dado 1" data-empty="true"></div>
                 <div class="die-hint" data-i18n="die1_hint">Giocatore</div>
               </div>
 
               <div class="die-card">
                 <div class="die-title" data-i18n="die2">Dado 2</div>
-                <div class="die big" id="die2">-</div>
+                <div class="die big die--a" id="die2" aria-label="Dado 2" data-empty="true"></div>
                 <div class="die-hint" data-i18n="die2_hint">Azione</div>
               </div>
 
               <div class="die-card">
                 <div class="die-title" data-i18n="die3">Dado 3</div>
-                <div class="die big" id="die3">-</div>
+                <div class="die big die--r" id="die3" aria-label="Dado 3" data-empty="true"></div>
                 <div class="die-hint" data-i18n="die3_hint">Esito / Reb</div>
               </div>
             </div>
@@ -336,7 +337,6 @@
 
       <div class="bottombar">
         <button class="btn primary xl" id="btnRoll" data-i18n="btn_roll">Lancia</button>
-        <button class="btn xl" id="btnNew" data-i18n="btn_new">Nuova</button>
       </div>
     </section>
 
