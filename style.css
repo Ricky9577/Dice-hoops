@@ -413,6 +413,41 @@ body{
   -webkit-backface-visibility: hidden;
 }
 
+/* === Dice readability fix === */
+
+/* Default: all faces slightly muted */
+.dice3d .face{
+  opacity: .28;
+  filter: saturate(.75) brightness(.9);
+  transition: opacity .25s ease, filter .25s ease;
+}
+
+/* Face currently facing front = FULL visibility */
+.dice3d[data-value="1"] .face.f1,
+.dice3d[data-value="2"] .face.f2,
+.dice3d[data-value="3"] .face.f3,
+.dice3d[data-value="4"] .face.f4,
+.dice3d[data-value="5"] .face.f5,
+.dice3d[data-value="6"] .face.f6{
+  opacity: 1;
+  filter: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,.25),
+    0 18px 36px rgba(0,0,0,.45);
+}
+
+/* Make front pips pop more */
+.dice3d[data-value="1"] .face.f1 .pip,
+.dice3d[data-value="2"] .face.f2 .pip,
+.dice3d[data-value="3"] .face.f3 .pip,
+.dice3d[data-value="4"] .face.f4 .pip,
+.dice3d[data-value="5"] .face.f5 .pip,
+.dice3d[data-value="6"] .face.f6 .pip{
+  box-shadow:
+    0 3px 10px rgba(0,0,0,.65),
+    0 0 0 2px rgba(0,0,0,.35);
+}
+
 .dice3d .face.f1{ transform: rotateY(0deg) translateZ(calc(var(--s)/2)); }
 .dice3d .face.f2{ transform: rotateY(90deg) translateZ(calc(var(--s)/2)); }
 .dice3d .face.f3{ transform: rotateY(180deg) translateZ(calc(var(--s)/2)); }
@@ -669,5 +704,6 @@ body{
   .roster-grid{ grid-template-columns: 1fr; }
   .roster-players{ grid-template-columns: 1fr; }
 }
+
 
 
