@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Dice Hoops</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b1020">
+
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Dice Hoops">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- LANDING -->
+    <section class="screen screen--active" id="screenLanding" aria-hidden="false">
+      <div class="landing">
+        <div class="landing-hero">
+          <div class="brand big">
+            <div class="ball big"></div>
+            <div>
+              <div class="title big">Dice Hoops</div>
+              <div class="subtitle" data-i18n="landing_subtitle">Turn-based • dadi • primo a 21</div>
+            </div>
+          </div>
+
+          <div class="landing-card">
+            <div class="landing-kicker" data-i18n="choose">Scegli</div>
+
+            <div class="landing-actions">
+              <button class="btn primary" id="btnGoPlay">🏀 <span data-i18n="play">Gioca</span></button>
+              <button class="btn" id="btnGoStats">📊 <span data-i18n="stats">Statistiche</span></button>
+              <button class="btn" id="btnGoTutorial">📘 <span data-i18n="tutorial">Tutorial</span></button>
+
+              <div class="lang">
+                <label for="langSelect" class="muted mini" data-i18n="language">Lingua</label>
+                <select id="langSelect" class="select">
+                  <option value="it">Italiano</option>
+                  <option value="en">English</option>
+                  <option value="es">Español</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="tip" data-i18n="tip6">Tip: con 6 sul Dado 2 scegli il tiro e il Dado 3 parte da solo.</div>
+          </div>
+        </div>
+
+        <div class="landing-card roster">
+          <div class="landing-kicker" data-i18n="teams_roster">Squadre & roster</div>
+
+          <div class="roster-grid">
+            <div>
+              <div class="mini muted" data-i18n="team_you">Squadra YOU</div>
+              <input class="input" id="teamHumanName" value="YOU" />
+            </div>
+            <div>
+              <div class="mini muted" data-i18n="team_ai">Squadra AI</div>
+              <input class="input" id="teamAIName" value="AI" />
+            </div>
+          </div>
+
+          <div class="mini muted" style="margin-top:10px" data-i18n="players_you">Giocatori YOU</div>
+          <div class="roster-players">
+            <input class="input" id="p1" value="Playmaker 1" />
+            <input class="input" id="p2" value="Playmaker 2" />
+            <input class="input" id="p3" value="All-around 3" />
+            <input class="input" id="p4" value="All-around 4" />
+            <input class="input" id="p5" value="Big 5" />
+            <input class="input" id="p6" value="Big 6" />
+          </div>
+
+          <div class="muted mini" style="margin-top:10px" data-i18n="skills_note">
+            Nota: le skill restano quelle base (PM / all-around / big).
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GAME -->
+    <section class="screen" id="screenGame" aria-hidden="true">
+      <header class="topbar">
+        <div class="brand">
+          <div class="ball"></div>
+          <div>
+            <div class="title">Dice Hoops</div>
+            <div class="subtitle" id="matchSubtitle">Primo a 21</div>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <button class="btn small" id="btnBackHome" title="Menu">⌂</button>
+          <button class="btn small" id="btnSoundToggle" aria-pressed="true" title="Sound">🔊</button>
+        </div>
+      </header>
+
+      <main class="game">
+        <section class="court">
+          <div class="court-overlay">
+
+            <!-- HOOP AREA (now in flow, above scoreboard) -->
+            <div class="hoop-area">
+              <div class="hoop">
+                <div class="net"></div>
+              </div>
+              <!-- Ball animated -->
+              <div class="ball-shot" id="ballShot" aria-hidden="true"></div>
+            </div>
+
+            <div class="possession">
+              <div class="pill" id="possessionPill">Possesso: YOU</div>
+              <div class="pill secondary" id="statusPill">Pronto</div>
+            </div>
+
+            <div class="scoreboard">
+              <div class="score">
+                <div class="label" id="labelHuman">YOU</div>
+                <div class="value" id="scoreHuman">0</div>
+              </div>
+              <div class="divider"></div>
+              <div class="score">
+                <div class="label" id="labelAI">AI</div>
+                <div class="value" id="scoreAI">0</div>
+              </div>
+            
+            <section class="lineups" aria-label="Lineups">
+              <div class="lineup-block">
+                <div class="lineup-title" data-i18n="you_lineup">YOU • Lineup</div>
+                <div class="player-row" id="youLineup"></div>
+              </div>
+              <div class="lineup-block">
+                <div class="lineup-title" data-i18n="ai_lineup">AI • Lineup</div>
+                <div class="player-row" id="aiLineup"></div>
+              </div>
+            </section>
+</div>
+
+            <div class="shotmeter">
+              <div class="mini muted" data-i18n="shot_meter">Shot meter</div>
+              <div class="shotmeter-bar">
+                <div class="shotmeter-fill" id="shotmeterFill" style="width:0%"></div>
+              </div>
+            </div>
+
+            <!-- DICE 3D -->
+            <div class="dice-row">
+              <div class="die-card">
+                <div class="die-title" data-i18n="die1">Dado 1</div>
+
+                <div class="dice3d die-a" id="die1" data-value="0" aria-label="Dado 1">
+                  <div class="cube">
+                    <div class="face f1"><span class="pip p11"></span></div>
+                    <div class="face f2"><span class="pip p21"></span><span class="pip p22"></span></div>
+                    <div class="face f3"><span class="pip p31"></span><span class="pip p32"></span><span class="pip p33"></span></div>
+                    <div class="face f4"><span class="pip p41"></span><span class="pip p42"></span><span class="pip p43"></span><span class="pip p44"></span></div>
+                    <div class="face f5"><span class="pip p51"></span><span class="pip p52"></span><span class="pip p53"></span><span class="pip p54"></span><span class="pip p55"></span></div>
+                    <div class="face f6"><span class="pip p61"></span><span class="pip p62"></span><span class="pip p63"></span><span class="pip p64"></span><span class="pip p65"></span><span class="pip p66"></span></div>
+                  </div>
+                </div>
+
+                <div class="die-hint" data-i18n="die1_hint">Giocatore</div>
+              </div>
+
+              <div class="die-card">
+                <div class="die-title" data-i18n="die2">Dado 2</div>
+
+                <div class="dice3d die-b" id="die2" data-value="0" aria-label="Dado 2">
+                  <div class="cube">
+                    <div class="face f1"><span class="pip p11"></span></div>
+                    <div class="face f2"><span class="pip p21"></span><span class="pip p22"></span></div>
+                    <div class="face f3"><span class="pip p31"></span><span class="pip p32"></span><span class="pip p33"></span></div>
+                    <div class="face f4"><span class="pip p41"></span><span class="pip p42"></span><span class="pip p43"></span><span class="pip p44"></span></div>
+                    <div class="face f5"><span class="pip p51"></span><span class="pip p52"></span><span class="pip p53"></span><span class="pip p54"></span><span class="pip p55"></span></div>
+                    <div class="face f6"><span class="pip p61"></span><span class="pip p62"></span><span class="pip p63"></span><span class="pip p64"></span><span class="pip p65"></span><span class="pip p66"></span></div>
+                  </div>
+                </div>
+
+                <div class="die-hint" data-i18n="die2_hint">Azione</div>
+              </div>
+
+              <div class="die-card">
+                <div class="die-title" data-i18n="die3">Dado 3</div>
+
+                <div class="dice3d die-c" id="die3" data-value="0" aria-label="Dado 3">
+                  <div class="cube">
+                    <div class="face f1"><span class="pip p11"></span></div>
+                    <div class="face f2"><span class="pip p21"></span><span class="pip p22"></span></div>
+                    <div class="face f3"><span class="pip p31"></span><span class="pip p32"></span><span class="pip p33"></span></div>
+                    <div class="face f4"><span class="pip p41"></span><span class="pip p42"></span><span class="pip p43"></span><span class="pip p44"></span></div>
+                    <div class="face f5"><span class="pip p51"></span><span class="pip p52"></span><span class="pip p53"></span><span class="pip p54"></span><span class="pip p55"></span></div>
+                    <div class="face f6"><span class="pip p61"></span><span class="pip p62"></span><span class="pip p63"></span><span class="pip p64"></span><span class="pip p65"></span><span class="pip p66"></span></div>
+                  </div>
+                </div>
+
+                <div class="die-hint" data-i18n="die3_hint">Esito / Rimbalzo</div>
+              </div>
+            </div>
+
+            <div class="center-panel">
+              <div class="who">
+                <div class="who-title" data-i18n="active_player">Giocatore attivo</div>
+                <div class="who-value" id="activePlayer">—</div>
+                <div class="skills" id="activeSkills"></div>
+              </div>
+
+              <!-- BIG centered roll -->
+              <div class="controls controls--center">
+                <button class="btn primary btn-roll-big" id="btnRoll" data-i18n="roll">Lancia</button>
+              </div>
+
+              
+              <div class="controls controls--center">
+                <button class="btn primary btn-roll-big" id="btnRoll" data-i18n="roll">Lancia</button>
+              </div>
+
+              <!-- Player choice (when D1 = 6) -->
+              <div class="choice" id="playerChoice" aria-hidden="true">
+                <div class="choice-title" data-i18n="choose_player">Scegli il giocatore</div>
+                <div class="choice-actions choice-actions--grid5">
+                  <button class="btn small" data-player="0">1</button>
+                  <button class="btn small" data-player="1">2</button>
+                  <button class="btn small" data-player="2">3</button>
+                  <button class="btn small" data-player="3">4</button>
+                  <button class="btn small" data-player="4">5</button>
+                </div>
+              </div>
+
+              <!-- Shot choice (always for YOU) -->
+              <div class="choice" id="shotChoice" aria-hidden="true">
+                <div class="choice-title" data-i18n="choose_shot">Scegli il tiro</div>
+                <div class="choice-actions">
+                  <button class="btn small" id="btnLayup" data-i18n="shot_layup">Layup (2)</button>
+                  <button class="btn small" id="btnMid" data-i18n="shot_mid">Midrange (2)</button>
+                  <button class="btn small" id="btnThree" data-i18n="shot_three">3PT (3)</button>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="log">
+
+              <div class="log-title" data-i18n="log">Cronaca</div>
+              <div class="log-box" id="logBox"></div>
+            </div>
+
+            <!-- New Game separated -->
+            <div class="newgame-bar">
+              <button class="btn" id="btnNew" data-i18n="new_game">Nuova partita</button>
+            </div>
+
+            <!-- FX -->
+            <div class="fx-flash" id="fxFlash" aria-hidden="true"></div>
+            <div class="fx-banner" id="fxBanner" aria-hidden="true"><div class="fx-banner-text" id="fxBannerText"></div></div>
+            <div class="fx-float" id="fxFloat" aria-hidden="true"></div>
+
+          </div>
+        </section>
+      </main>
+    </section>
+
+    <!-- STATS -->
+    <section class="screen" id="screenStats" aria-hidden="true">
+      <header class="topbar">
+        <div class="brand">
+          <div class="ball"></div>
+          <div>
+            <div class="title" data-i18n="stats">Statistiche</div>
+            <div class="subtitle muted mini" data-i18n="stats_sub">Tutto salvato in locale</div>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn small" id="btnStatsBack" title="Menu">⌂</button>
+        </div>
+      </header>
+
+      <main class="pad">
+        <div class="card" id="statsBox"></div>
+        <div style="margin-top:12px">
+          <button class="btn" id="btnResetStats" data-i18n="reset_stats">Reset statistiche</button>
+        </div>
+      </main>
+    </section>
+
+    <!-- TUTORIAL -->
+    <section class="screen" id="screenTutorial" aria-hidden="true">
+      <header class="topbar">
+        <div class="brand">
+          <div class="ball"></div>
+          <div>
+            <div class="title" data-i18n="tutorial">Tutorial</div>
+            <div class="subtitle muted mini" data-i18n="tutorial_sub">Regole e consigli</div>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn small" id="btnTutorialBack" title="Menu">⌂</button>
+        </div>
+      </header>
+
+      <main class="pad">
+        <div class="card tutorial">
+          <h3 data-i18n="t1_title">Come si gioca</h3>
+          <ol>
+            <li data-i18n="t1_1">Premi <b>Lancia</b>.</li>
+            <li data-i18n="t1_2"><b>Dado 1</b> sceglie il giocatore (1–6).</li>
+            <li data-i18n="t1_3"><b>Dado 2</b> sceglie l’azione (turnover / tiro / scelta).</li>
+            <li data-i18n="t1_4"><b>Dado 3</b> determina l’esito del tiro (pesato dalle skill).</li>
+            <li data-i18n="t1_5">Se sbagli: tiri per il rimbalzo (dipende dalla skill rimbalzo).</li>
+          </ol>
+
+          <h3 data-i18n="t2_title">Azioni (Dado 2)</h3>
+          <ul>
+            <li data-i18n="t2_1"><b>1</b> = palla persa (cambio possesso)</li>
+            <li data-i18n="t2_2"><b>2–3</b> = tiro da sotto (2 punti)</li>
+            <li data-i18n="t2_3"><b>4–5</b> = tiro da 3 (3 punti)</li>
+            <li data-i18n="t2_4"><b>6</b> = scegli tu (e il Dado 3 parte da solo)</li>
+          </ul>
+
+          <h3 data-i18n="t3_title">Obiettivo</h3>
+          <p data-i18n="t3_1">Vince chi arriva per primo a <b>21</b>.</p>
+        </div>
+      </main>
+    </section>
+
+  </div>
+
+  <script src="game.js"></script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
