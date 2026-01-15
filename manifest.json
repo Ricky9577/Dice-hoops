@@ -1,7 +1,7 @@
 {
-  "name": "Basket Dice",
-  "short_name": "Basket Dice",
-  "description": "Gioco di basket con i dadi. Turn-based, primo a 21.",
+  "name": "Dice Hoops",
+  "short_name": "Dice Hoops",
+  "description": "Gioco di basket con dadi. Turn-based, primo a 21. Skill e scelte.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

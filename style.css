@@ -6,6 +6,7 @@
   --muted:rgba(255,255,255,.65);
   --line:rgba(255,255,255,.12);
   --accent:#ff8a1f;
+  --accent2:#ffb24a;
   --shadow: 0 10px 30px rgba(0,0,0,.35);
   --radius: 18px;
 }
@@ -23,17 +24,61 @@ body{
   color: var(--text);
 }
 
+/* App-style: prevent page scrolling (each screen manages its own scroll) */
+body{ overflow:hidden; }
+
 .app{
+  position: fixed;
+  inset: 0;
   max-width: 1000px;
   margin: 0 auto;
+  height: 100dvh;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Screens behave like native app pages (stacked, not in document flow) */
+.screen{
+  position:absolute;
+  inset:0;
+  display:none;
+  height: 100%;
   padding: 14px;
   padding-top: calc(14px + env(safe-area-inset-top));
   padding-bottom: calc(14px + env(safe-area-inset-bottom));
-  min-height: 100dvh;
+  box-sizing: border-box;
+  overflow:hidden;
+}
+.screen--active{ display:block; }
+
+/* Screens that can scroll internally */
+#screenLanding.screen--active,
+#screenStats.screen--active,
+#screenTutorial.screen--active{
+  overflow-y:auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-.screen{ display:none; }
-.screen--active{ display:block; }
+/* Preserve flex layout when the GAME screen becomes active */
+#screenGame.screen--active{ display:flex; }
+
+/* Make the GAME screen fit the viewport. Any overflow is handled inside panels (court overlay / log). */
+#screenGame{ height: 100%; flex-direction:column; }
+#screenGame .topbar{ flex: 0 0 auto; }
+#screenGame .game{ flex: 1 1 auto; min-height: 0; }
+#screenGame .court{ height: 100%; }
+#screenGame .court-overlay{ height: 100%; min-height: 0; }
+
+/* If content exceeds the viewport, scroll INSIDE the court (app-like) */
+#screenGame .court-overlay{
+  overflow-y:auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+#screenGame .court-overlay::-webkit-scrollbar{ width:0; height:0; }
+
+/* (screen box model is defined above; keep only one source of truth) */
 
 .muted{ color: var(--muted); }
 .mini{ font-size: 12px; }
@@ -43,12 +88,30 @@ body{
   align-items:center;
   justify-content:space-between;
   gap: 10px;
+  flex-wrap: wrap;
   padding: 12px 14px;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
+
+.scoremini{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.22);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 26px rgba(0,0,0,.28);
+  flex: 0 0 auto;
+}
+.scoremini .team{ display:flex; align-items:baseline; gap:6px; }
+.scoremini .t{ font-size: 11px; letter-spacing:.8px; color: rgba(255,255,255,.72); font-weight:900; }
+.scoremini .s{ font-size: 20px; font-weight: 1000; line-height: 1; }
+.scoremini .sep{ color: rgba(255,255,255,.35); font-weight: 900; }
 
 .brand{
   display:flex;
@@ -100,9 +163,19 @@ body{
 .btn:active{ transform: translateY(1px); }
 
 .btn.primary{
-  background: linear-gradient(135deg, rgba(255,138,31,.95), rgba(255,138,31,.72));
-  border-color: rgba(255,138,31,.35);
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  border-color: rgba(255,138,31,.45);
   color: #1b1207;
+}
+
+/* Force the main ROLL button to stay vivid orange on every device */
+#btnRoll.btn.primary{
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  color:#1b1207;
+}
+#btnRoll.btn.primary:disabled{
+  filter: saturate(.6) brightness(.85);
+  opacity:.9;
 }
 .btn.small{ padding: 9px 10px; font-size: 13px; }
 
@@ -205,10 +278,10 @@ body{
 }
 
 .court-overlay{
-  padding: 14px;
+  padding: 12px;
   display:flex;
   flex-direction:column;
-  gap: 12px;
+  gap: 10px;
   position:relative;
   height: 100%;
   min-height: 0;
@@ -217,14 +290,14 @@ body{
 /* HOOP: in flow, above scoreboard, no overlaps */
 .hoop-area{
   position:relative;
-  height: 150px;
+  height: 120px;
   display:flex;
   align-items:flex-start;
   justify-content:center;
 }
 .hoop{
-  width: 150px;
-  height: 130px;
+  width: 124px;
+  height: 110px;
   position:relative;
   pointer-events:none;
 }
@@ -234,8 +307,8 @@ body{
   left: 50%;
   top: 0;
   transform: translateX(-50%);
-  width: 132px;
-  height: 78px;
+  width: 112px;
+  height: 66px;
   border-radius: 12px;
   background:
     linear-gradient(180deg, rgba(255,255,255,.18), rgba(0,0,0,.18)),
@@ -417,6 +490,78 @@ body{
   perspective: 650px;
   user-select:none;
   touch-action: manipulation;
+}
+
+/* Log: keep it compact and scrollable inside (so the whole game fits in one screen). */
+.log-box{
+  max-height: 140px;
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* --- Compact mobile layout --- */
+@media (max-width: 520px){
+  /* optional UI: hide shot meter on phones to keep everything on one screen */
+  .shotmeter{ display:none; }
+
+  .log{ padding: 8px; }
+  .log-box{ max-height: 80px; }
+
+  .newgame-bar{ padding-top: 6px; }
+  .btn-roll-big{ padding: 14px 16px; font-size: 18px; }
+  /* app no longer carries padding; screens do */
+
+  .topbar{ padding: 10px 12px; }
+  .topbar .brand{ flex: 1 1 100%; }
+  .scoremini{ order: 3; }
+  .topbar-actions{ order: 4; }
+  .scoremini .s{ font-size: 18px; }
+  .title{ font-size: 16px; }
+  .subtitle{ font-size: 11px; }
+
+  .court-overlay{ padding: 10px; gap: 8px; }
+
+  /* smaller hoop so everything stays above the fold */
+  .hoop-area{ height: 96px; }
+  .hoop{ width: 110px; height: 96px; }
+  .hoop::before{ width: 104px; height: 56px; border-radius: 10px; }
+  .hoop::after{ top: 46px; width: 86px; height: 16px; border-width: 3px; }
+  .hoop .net{ top: 58px; width: 64px; height: 36px; }
+
+  .possession{ gap: 8px; }
+  .pill{ padding: 7px 9px; font-size: 12px; }
+
+  .scoreboard{ padding: 9px 10px; }
+  .scoreboard .value{ font-size: 22px; }
+
+  .lineups{ margin-top: -2px; }
+  .lineup-title{ font-size: 11px; }
+  .player-chip{ font-size: 11px; padding: 6px 8px; }
+
+  .shotmeter-bar{ height: 10px; }
+
+  .dice-row{ gap: 8px; }
+  .dice3d{ --s: 56px; margin: 8px auto 4px; }
+  .die-card{ padding: 10px 10px; }
+  .die-title{ font-size: 11px; }
+  .die-hint{ font-size: 11px; }
+  .die-card{ padding: 8px; border-radius: 16px; }
+  .dice3d{ --s: 54px; margin: 8px auto 4px; }
+
+  .btn-roll-big{ padding: 12px 14px; font-size: 16px; border-radius: 14px; }
+
+  /* keep log usable but not huge */
+  .log-box{ max-height: 96px; }
+
+  .newgame-bar .btn{ padding: 10px 12px; }
+}
+
+/* Extra compact for short screens (older phones / landscape PWA). */
+@media (max-height: 720px){
+  .hoop-area{ height: 86px; }
+  .log-box{ max-height: 78px; }
+  .dice3d{ --s: 52px; }
+  .btn-roll-big{ padding: 11px 14px; }
 }
 .dice3d .cube{
   width: 100%;
@@ -640,7 +785,17 @@ body{
 .log-line{ margin: 0 0 6px 0; }
 .log-line b{ color: var(--text); }
 
-.newgame-bar{ display:flex; justify-content:flex-end; padding-top: 2px; }
+.newgame-bar{
+  display:flex;
+  justify-content:flex-end;
+  padding-top: 2px;
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  padding-bottom: max(2px, env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.55) 35%, rgba(11,16,32,.80));
+  backdrop-filter: blur(10px);
+}
 
 /* STATS / TUTORIAL */
 .pad{ margin-top: 12px; }
@@ -723,18 +878,280 @@ body{
   .app{ padding: 12px; }
   .topbar{ padding: 10px 12px; }
 
-  .hoop-area{ height: 138px; }
-  .dice3d{ --s: 54px; }
+  /* Fit everything in one screen */
+  .court-overlay{ padding: 10px; gap: 10px; }
+  .hoop-area{ height: 96px; }
+  .hoop{ transform: scale(.78); transform-origin: top center; }
+
+  .possession{ gap: 8px; }
+  .pill{ padding: 7px 9px; font-size: 12px; }
+
+  .scoreboard{ padding: 8px 10px; }
+  .scoreboard .value{ font-size: 22px; }
+
+  .lineups{ margin-top: 6px; gap: 8px; }
+  .lineup-block{ padding: 8px; }
+  .player-chip{ min-height: 50px; padding: 7px; }
+  .player-chip .role{ font-size: 10px; }
+  .player-chip .name{ font-size: 9px; }
+
+  .dice3d{ --s: 52px; }
   .die-card{ padding: 8px; border-radius: 16px; }
   .dice-row{ gap: 8px; }
 
-  .log-box{ height: 110px; }
-  .btn-roll-big{ font-size: 18px; padding: 14px 16px; }
+  .center-panel{ padding: 10px; gap: 8px; }
+  .btn-roll-big{ font-size: 16px; padding: 12px 14px; }
+
+  /* Keep the log usable without forcing page scroll */
+  .log{ padding: 10px; }
+  .log-title{ margin-bottom: 6px; }
+  .log-box{ height: 78px; font-size: 12px; }
 
   .roster-grid{ grid-template-columns: 1fr; }
   .roster-players{ grid-template-columns: 1fr; }
 }
 
 
+/* Cards feel */
+.card, .panel, .die-card, .log-box, .scoreboard, .choice{
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+}
+
+/* Better main CTA */
+.btn.primary{
+  background: linear-gradient(180deg, var(--accent2), var(--accent));
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 16px 30px rgba(255,122,24,.28);
+}
+.btn.primary:active{ transform: translateY(1px) scale(.99); }
+
+/* Lineups */
+.lineups{
+  margin-top: 2px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.14);
+  padding: 6px;
+}
+.lineups-summary{
+  list-style: none;
+  cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.05);
+  font-weight: 900;
+  font-size: 12px;
+  color: rgba(255,255,255,.85);
+  user-select: none;
+}
+.lineups summary::-webkit-details-marker{ display:none; }
+.lineups[open]{
+  padding: 8px;
+}
+.lineups[open] .lineups-summary{
+  margin-bottom: 8px;
+}
+.lineup-block{
+  padding: 10px 10px;
+  border-radius: 16px;
+  border: 1px solid var(--stroke);
+  background: var(--card);
+}
+.lineup-title{
+  font-size: 11px;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.78);
+  margin-bottom: 8px;
+}
+.player-row{
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+.player-chip{
+  border-radius: 14px;
+  padding: 7px 7px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.16);
+  min-height: 52px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.player-chip .top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+}
+.player-chip .role{
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing:.6px;
+}
+.player-chip .name{
+  font-size: 10px;
+  color: rgba(255,255,255,.75);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.player-chip .mini{
+  display:flex;
+  gap:4px;
+  font-size: 9px;
+  color: rgba(255,255,255,.65);
+}
+.player-chip .dot{
+  width:7px; height:7px; border-radius:999px;
+  background: rgba(255,255,255,.20);
+  border: 1px solid rgba(255,255,255,.12);
+  flex: 0 0 auto;
+}
+.player-chip.active{
+  outline: 2px solid rgba(255,122,24,.65);
+  box-shadow: 0 0 0 6px rgba(255,122,24,.10), var(--shadow);
+}
+.player-chip.active .dot{ background: rgba(255,122,24,.75); }
+
+.player-chip .tag{
+  margin-top: 4px;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(255,255,255,.78);
+  display:inline-flex;
+  width: fit-content;
+}
+.tag.good{ background: rgba(57,217,138,.12); }
+.tag.bad{ background: rgba(255,92,122,.12); }
+
+/* Choice grid for 5 */
+.choice-actions--grid5{
+  display:grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.choice{ border: 1px solid rgba(255,255,255,.12); }
+
+/* Dice face pop + settle */
+@keyframes facePop {
+  0%   { box-shadow: 0 0 0 rgba(255,255,255,0); transform: scale(1); }
+  60%  { box-shadow: 0 0 0 6px rgba(255,255,255,.08), 0 18px 36px rgba(0,0,0,.55); transform: scale(1.02); }
+  100% { box-shadow: 0 18px 36px rgba(0,0,0,.45); transform: scale(1); }
+}
+.dice3d.popface[data-value="1"] .face.f1,
+.dice3d.popface[data-value="2"] .face.f2,
+.dice3d.popface[data-value="3"] .face.f3,
+.dice3d.popface[data-value="4"] .face.f4,
+.dice3d.popface[data-value="5"] .face.f5,
+.dice3d.popface[data-value="6"] .face.f6{
+  animation: facePop .22s ease-out 1;
+}
+
+@keyframes settle {
+  0% { transform: var(--final); }
+  35%{ transform: var(--final) rotateZ(2deg); }
+  70%{ transform: var(--final) rotateZ(-1deg); }
+  100%{ transform: var(--final); }
+}
+.dice3d.settle .cube{
+  animation: settle .22s ease-out 1;
+}
+
+/* Smaller tweaks for very small screens */
+@media (max-width: 360px){
+  .player-chip{ min-height: 52px; padding: 7px; }
+  .player-row{ gap: 6px; }
+}
+
+/* Ultra-short screens (older iPhones / small Android): prioritize gameplay controls over extras */
+@media (max-height: 740px){
+  .lineups{ display:none; }
+  .hoop-area{ height: 88px; }
+  .log-box{ height: 64px; }
+  .dice3d{ --s: 50px; }
+}
 
 
+/* === Coach (interactive tutorial) === */
+.coach-overlay{
+  position: fixed;
+  inset: 0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding: 14px;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+}
+.coach-overlay.show{ display:flex; }
+.coach-card{
+  width: min(520px, 100%);
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(15,20,35,.88);
+  box-shadow: 0 18px 50px rgba(0,0,0,.45);
+  overflow:hidden;
+}
+.coach-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 12px 12px 10px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+}
+.coach-title{ font-weight: 900; letter-spacing:.2px; }
+.coach-body{
+  padding: 12px;
+  color: rgba(255,255,255,.86);
+  line-height: 1.35;
+}
+.coach-actions{
+  display:flex;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid rgba(255,255,255,.10);
+  flex-wrap: wrap;
+}
+.coach-actions .btn{ flex: 1 1 auto; }
+
+.coach-highlight{
+  outline: 3px solid rgba(255,178,74,.55);
+  box-shadow: 0 0 0 10px rgba(255,138,31,.10);
+  border-radius: 16px;
+}
+
+
+/* === Stats tables === */
+.statblock{ margin-top: 10px; }
+.statblock-head{
+  font-weight: 900;
+  margin: 6px 0 8px;
+  letter-spacing: .2px;
+}
+.tablewrap{
+  overflow-x:auto;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.16);
+}
+.stattable{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.stattable th, .stattable td{
+  padding: 10px 10px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  text-align: center;
+  white-space: nowrap;
+}
+.stattable th{ color: rgba(255,255,255,.70); font-weight: 900; }
+.stattable td:first-child, .stattable th:first-child{ text-align:left; }
+.stattable tbody tr:last-child td{ border-bottom: 0; }
