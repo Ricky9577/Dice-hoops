@@ -1,5 +1,5 @@
 // bump cache when shipping fixes
-const CACHE_NAME = "dice-hoops-v3-layoutfix";
+const CACHE_NAME = "dice-hoops-v4-layoutfix";
 const ASSETS = [
   "./",
   "./index.html",
