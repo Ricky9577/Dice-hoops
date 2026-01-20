@@ -1,13 +1,10 @@
-{
+﻿{
   "name": "Dice Hoops",
   "short_name": "Dice Hoops",
-  "description": "Gioco di basket con dadi. Turn-based, primo a 21. Skill e scelte.",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": ".",
   "display": "standalone",
-  "background_color": "#0b1020",
-  "theme_color": "#0b1020",
-  "orientation": "portrait",
+  "background_color": "#0b0f14",
+  "theme_color": "#ff7a1a",
   "icons": [
     {
       "src": "icon-192.png",
