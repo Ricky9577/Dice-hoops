@@ -6,6 +6,7 @@ window.addEventListener("DOMContentLoaded", () => {
     rollAnimMs: 520,
     uiStepDelayMs: 420,
     aiThinkMs: 520,
+    fxDurationMs: 520,
     soundOnByDefault: true,
   };
 
@@ -244,26 +245,77 @@ const I18N = {
     });
   }
 
-  // --- Sound (tiny) ---
+  // --- Sound (basket flavored) ---
   let soundOn = (localStorage.getItem(LS_KEYS.sound) ?? String(CONFIG.soundOnByDefault)) === "true";
-  function beep(freq = 520, ms = 80, type = "sine", gainVal = 0.05) {
+  let audioCtx = null;
+
+  function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume().catch(() => {});
+    }
+    return audioCtx;
+  }
+
+  function playTone(ctx, freq, ms, type, gainVal, atSec = 0, endFreq = null) {
+    const start = ctx.currentTime + atSec;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, start);
+    if (endFreq) {
+      o.frequency.exponentialRampToValueAtTime(Math.max(60, endFreq), start + ms / 1000);
+    }
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.exponentialRampToValueAtTime(gainVal, start + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + ms / 1000);
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.start(start);
+    o.stop(start + ms / 1000 + 0.02);
+  }
+
+  function playSound(name) {
     if (!soundOn) return;
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type = type;
-      o.frequency.value = freq;
-      g.gain.value = gainVal;
-      o.connect(g);
-      g.connect(ctx.destination);
-      o.start();
-      setTimeout(() => {
-        o.stop();
-        ctx.close();
-      }, ms);
+      const ctx = getAudioCtx();
+      switch (name) {
+        case "roll":
+          playTone(ctx, 240, 50, "triangle", 0.06, 0, 160);
+          playTone(ctx, 420, 40, "triangle", 0.04, 0.04, 260);
+          break;
+        case "swish":
+          playTone(ctx, 1200, 120, "sine", 0.05, 0, 520);
+          playTone(ctx, 780, 90, "triangle", 0.04, 0.05, 420);
+          break;
+        case "rim":
+          playTone(ctx, 1500, 60, "square", 0.03, 0, 900);
+          playTone(ctx, 900, 90, "triangle", 0.03, 0.04, 520);
+          break;
+        case "turnover":
+          playTone(ctx, 180, 130, "sawtooth", 0.035, 0, 110);
+          break;
+        case "orb":
+          playTone(ctx, 220, 80, "triangle", 0.06, 0, 120);
+          playTone(ctx, 320, 60, "triangle", 0.05, 0.06, 180);
+          break;
+        case "ui_on":
+          playTone(ctx, 880, 80, "sine", 0.05, 0);
+          break;
+        case "ui_off":
+          playTone(ctx, 220, 80, "sine", 0.04, 0);
+          break;
+        default:
+          break;
+      }
     } catch {}
   }
+
+  document.addEventListener("visibilitychange", () => {
+    if (audioCtx && document.hidden) {
+      audioCtx.suspend().catch(() => {});
+    }
+  });
 
   // --- Elements ---
   const $ = (id) => document.getElementById(id);
@@ -788,7 +840,7 @@ function renderStatsScreen() {
     const d1 = rollD6(); // 1-6
     state.last.d1 = d1;
     await animateRoll(die1, d1);
-    beep(520, 70);
+    playSound("roll");
 
     if (d1 === 6) {
       state.phase = "awaitPlayerChoice";
@@ -866,13 +918,13 @@ function renderStatsScreen() {
     state.contextD2 = d2;
     state.last.d2 = d2;
     await animateRoll(die2, d2);
-    beep(620, 70);
+    playSound("roll");
 
     // Roll outcome (D3)
     const d3 = rollD6();
     state.last.d3 = d3;
     await animateRoll(die3, d3);
-    beep(740, 70);
+    playSound("roll");
 
     const side = currentSide();
     const opp = otherSide();
@@ -886,6 +938,7 @@ function renderStatsScreen() {
       if (d3 <= toThreshold) {
         // turnover
         p.stats.TO += 1;
+        playSound("turnover");
         flash("bad");
         banner("TURNOVER!", "bad");
         addLog(`<span class="tag bad">TO</span> ${p.role} perde palla. (D3=${d3} ≤ ${toThreshold})`);
@@ -928,7 +981,7 @@ function renderStatsScreen() {
       banner(`+${pts}`, "good");
       addLog(`<span class="tag good">${ctx.text}</span> <b>${shotLabel(shot)}</b> — CANESTRO! (D3=${d3} ≤ ${success})`);
       animateBall(true);
-      beep(920, 110, "triangle", 0.06);
+      playSound("swish");
 
       if (side.score >= CONFIG.targetScore) {
         finishGame();
@@ -942,7 +995,7 @@ function renderStatsScreen() {
     flash("bad");
     addLog(`<span class="tag ${ctx.kind === "bad" ? "bad" : "good"}">${ctx.text}</span> <b>${shotLabel(shot)}</b> — ferro. (D3=${d3} > ${success})`);
     animateBall(false);
-    beep(260, 80, "sine", 0.05);
+    playSound("rim");
 
     // Rebound roll uses die3 again (keeps dice focus, still 3D)
     await sleep(180);
@@ -956,6 +1009,7 @@ function renderStatsScreen() {
 
     if (d3r <= orbSuccess) {
       p.stats.ORB += 1;
+      playSound("orb");
       flash("good");
       banner("OFF REB!", "good");
       addLog(`<span class="tag good">ORB</span> rimbalzo d'attacco! (D3=${d3r} ≤ ${orbSuccess}) → si riparte.`);
@@ -1318,7 +1372,7 @@ btnCoachNext?.addEventListener("click", async () => {
     soundOn = !soundOn;
     localStorage.setItem(LS_KEYS.sound, String(soundOn));
     renderSoundIcon();
-    beep(soundOn ? 880 : 220, 90, "sine", 0.06);
+    playSound(soundOn ? "ui_on" : "ui_off");
   });
   renderSoundIcon();
 
