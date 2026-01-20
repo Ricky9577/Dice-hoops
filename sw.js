@@ -1,4 +1,5 @@
-const CACHE_NAME = "basket-dice-v13";
+// bump cache when shipping fixes
+const CACHE_NAME = "dice-hoops-v2-navfix";
 const ASSETS = [
   "./",
   "./index.html",
