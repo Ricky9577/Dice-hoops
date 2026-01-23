@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = "dice-hoops-v1";
+﻿const CACHE_NAME = "dice-hoops-v2";
 const ASSETS = [
   "./",
   "./index.html",
