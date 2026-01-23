@@ -239,6 +239,16 @@ const state = {
   stats: null
 };
 
+const TIMINGS = {
+  userD2Delay: 0,
+  userD3Delay: 820,
+  aiD1Delay: 300,
+  aiPickDelay: 650,
+  aiShotDelay: 800,
+  aiD2Delay: 900,
+  aiD3Delay: 1100
+};
+
 const els = {
   playBtn: document.getElementById("playBtn"),
   statsBtn: document.getElementById("statsBtn"),
@@ -348,6 +358,10 @@ function setDiceValue(el, value) {
   setTimeout(() => el.classList.remove("rolling3d"), 700);
 }
 
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function rollDie() {
   return Math.floor(Math.random() * 6) + 1;
 }
@@ -440,17 +454,25 @@ function handlePlayerRoll() {
   updateControls();
 }
 
-function resolveOutcome(team) {
-  const d2 = rollDie();
-  const d3 = rollDie();
+function logContext(d2) {
+  addLog(`${t("log_context")}: ${contextLabel(d2)}`);
+}
+
+function resolveOutcome(team, d2Override, d3Override, contextLogged = false) {
+  const d2 = d2Override || rollDie();
+  const d3 = d3Override || rollDie();
   state.dice.d2 = d2;
   state.dice.d3 = d3;
-  setDiceValue(els.dice2, d2);
-  setDiceValue(els.dice3, d3);
+  if (!contextLogged) {
+    setDiceValue(els.dice2, d2);
+    setDiceValue(els.dice3, d3);
+  }
 
   const player = ROSTER[state.activePlayerIndex];
   const shiftContext = contextShift(d2);
-  addLog(`${t("log_context")}: ${contextLabel(d2)}`);
+  if (!contextLogged) {
+    logContext(d2);
+  }
 
   let turnover = false;
   if (d2 === 1) {
@@ -508,6 +530,19 @@ function resolveOutcome(team) {
   return false;
 }
 
+async function rollOutcomeAnimated(team, delay2, delay3) {
+  const d2 = rollDie();
+  state.dice.d2 = d2;
+  await wait(delay2);
+  setDiceValue(els.dice2, d2);
+  logContext(d2);
+  const d3 = rollDie();
+  state.dice.d3 = d3;
+  await wait(delay3);
+  setDiceValue(els.dice3, d3);
+  return resolveOutcome(team, d2, d3, true);
+}
+
 function addPoints(team, points) {
   if (team === "you") {
     state.scores.you += points;
@@ -558,16 +593,19 @@ function aiTurn() {
   state.aiThinking = true;
   updateControls();
   addLog(t("ai_thinking"));
-  setTimeout(() => {
+  setTimeout(async () => {
+    await wait(TIMINGS.aiD1Delay);
     aiPickPlayer();
+    await wait(TIMINGS.aiPickDelay);
     aiPickShot();
+    await wait(TIMINGS.aiShotDelay);
     state.phase = "roll_outcome";
-    const kept = resolveOutcome("ai");
+    const kept = await rollOutcomeAnimated("ai", TIMINGS.aiD2Delay, TIMINGS.aiD3Delay);
     state.aiThinking = false;
     if (!state.gameOver && state.possession === "ai" && kept) {
-      setTimeout(() => aiTurn(), 400);
+      setTimeout(() => aiTurn(), 500);
     }
-  }, 450);
+  }, 200);
 }
 
 function aiPickPlayer() {
@@ -994,7 +1032,9 @@ function setupEvents() {
       return;
     }
     if (state.phase === "roll_outcome") {
-      resolveOutcome("you");
+      state.phase = "rolling_outcome";
+      updateControls();
+      rollOutcomeAnimated("you", TIMINGS.userD2Delay, TIMINGS.userD3Delay);
     }
   });
 
