@@ -723,7 +723,7 @@ function animateBall(made) {
 function animateShooter(shotType) {
   const shooter = els.shooter;
   if (!shooter) return;
-  shooter.classList.remove("near", "mid", "far", "animate", "pre-dribble", "shot-layup", "shot-mid", "shot-three", "parallax");
+  shooter.classList.remove("near", "mid", "far", "animate", "pre-dribble", "shot-layup", "shot-mid", "shot-three", "parallax", "idle");
   if (shotType === "layup") shooter.classList.add("near");
   if (shotType === "mid") shooter.classList.add("mid");
   if (shotType === "three") shooter.classList.add("far");
@@ -737,6 +737,7 @@ function animateShooter(shotType) {
     shooter.classList.add("animate");
     setTimeout(() => {
       shooter.classList.remove("animate", "parallax", "shot-layup", "shot-mid", "shot-three");
+      shooter.classList.add("idle", "mid");
       if (shadow) shadow.classList.remove("jump");
     }, 700);
   }, 420);
@@ -1102,6 +1103,9 @@ function init() {
   setupLineups();
   setupEvents();
   startGame(true);
+  if (els.shooter) {
+    els.shooter.classList.add("idle", "mid");
+  }
 }
 
 if ("serviceWorker" in navigator) {
