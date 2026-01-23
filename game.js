@@ -690,6 +690,11 @@ function animateBall(made) {
   const shotKey = state.shot || "mid";
   const startX = startPositions[shotKey].x;
   const startY = startPositions[shotKey].y;
+  const apex = {
+    layup: { x: (startX + rimX) / 2, y: Math.min(startY, rimY) - 40 },
+    mid: { x: (startX + rimX) / 2, y: Math.min(startY, rimY) - 70 },
+    three: { x: (startX + rimX) / 2, y: Math.min(startY, rimY) - 95 }
+  };
 
   els.ball.style.transition = "none";
   els.ball.style.opacity = "1";
@@ -699,24 +704,35 @@ function animateBall(made) {
   els.ball.classList.add("trail");
 
   requestAnimationFrame(() => {
-    els.ball.style.transition = "transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.3s ease";
-    els.ball.style.transform = `translate(${rimX}px, ${rimY}px) scale(0.9) rotate(220deg)`;
+    els.ball.style.transition = "transform 0.45s ease-out, opacity 0.3s ease";
+    els.ball.style.transform = `translate(${apex[shotKey].x}px, ${apex[shotKey].y}px) scale(0.95) rotate(160deg)`;
 
     setTimeout(() => {
       const side = state.ballSide;
       state.ballSide *= -1;
-      if (made) {
-        els.ball.style.transition = "transform 0.4s ease, opacity 0.4s ease";
-        els.ball.style.transform = `translate(${rimX + 6}px, ${rimY + 34}px) scale(0.6) rotate(360deg)`;
-        els.ball.style.opacity = "0";
-      } else {
-        const bounceX = rimX + side * 30;
-        const bounceY = rimY + 30;
-        els.ball.style.transition = "transform 0.4s ease, opacity 0.4s ease";
-        els.ball.style.transform = `translate(${bounceX}px, ${bounceY}px) rotate(260deg) scale(0.7)`;
-        els.ball.style.opacity = "0";
-      }
-    }, 700);
+      els.ball.style.transition = "transform 0.45s ease-in, opacity 0.3s ease";
+      els.ball.style.transform = `translate(${rimX}px, ${rimY}px) scale(0.9) rotate(280deg)`;
+
+      setTimeout(() => {
+        if (made) {
+          els.ball.style.transition = "transform 0.4s ease, opacity 0.4s ease";
+          els.ball.style.transform = `translate(${rimX + 6}px, ${rimY + 34}px) scale(0.6) rotate(360deg)`;
+          els.ball.style.opacity = "0";
+          const net = document.querySelector(".net");
+          if (net) {
+            net.classList.remove("swish");
+            void net.offsetWidth;
+            net.classList.add("swish");
+          }
+        } else {
+          const bounceX = rimX + side * 30;
+          const bounceY = rimY + 30;
+          els.ball.style.transition = "transform 0.4s ease, opacity 0.4s ease";
+          els.ball.style.transform = `translate(${bounceX}px, ${bounceY}px) rotate(260deg) scale(0.7)`;
+          els.ball.style.opacity = "0";
+        }
+      }, 460);
+    }, 460);
   });
 }
 

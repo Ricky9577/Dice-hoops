@@ -240,7 +240,7 @@ button:active {
   position: relative;
   border-radius: 22px;
   overflow: hidden;
-  background: linear-gradient(160deg, #1b2432 0%, #0f131b 100%);
+  background: linear-gradient(160deg, #1a1713 0%, #0f0d0c 100%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: var(--shadow);
 }
@@ -248,64 +248,265 @@ button:active {
 .court-bg {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 30%, rgba(255, 122, 26, 0.15), transparent 60%),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0, rgba(255, 255, 255, 0.04) 2px, transparent 2px, transparent 12px);
+  background:
+    radial-gradient(circle at 62% 38%, rgba(255, 138, 38, 0.12), transparent 65%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 60%),
+    repeating-linear-gradient(90deg, rgba(160, 108, 64, 0.22) 0, rgba(160, 108, 64, 0.22) 2px, transparent 2px, transparent 22px),
+    repeating-linear-gradient(90deg, rgba(120, 78, 44, 0.12) 0, rgba(120, 78, 44, 0.12) 1px, transparent 1px, transparent 44px),
+    repeating-linear-gradient(0deg, rgba(12, 9, 7, 0.22) 0, rgba(12, 9, 7, 0.22) 1px, transparent 1px, transparent 28px);
+  filter: saturate(1.1);
+}
+
+.court::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(140deg, rgba(255, 255, 255, 0.08), transparent 45%),
+    radial-gradient(circle at 30% 80%, rgba(255, 255, 255, 0.06), transparent 55%);
+  pointer-events: none;
+}
+
+.court-lines {
+  position: absolute;
+  inset: 8% 6%;
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+.line {
+  position: absolute;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 12px;
+}
+
+.line.baseline {
+  right: 2%;
+  top: 10%;
+  bottom: 10%;
+  width: 2px;
+}
+
+.line.sideline {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+}
+
+.line.key {
+  right: 12%;
+  top: 30%;
+  width: 30%;
+  height: 42%;
+  border-radius: 14px;
+}
+
+.line.key::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.line.free-throw {
+  right: 42%;
+  top: 30%;
+  width: 2px;
+  height: 42%;
+  border-radius: 0;
+}
+
+.line.ft-circle {
+  right: 46%;
+  top: 34%;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.line.restricted {
+  right: 17%;
+  top: 50%;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.line.arc {
+  right: -2%;
+  top: 8%;
+  width: 78%;
+  height: 84%;
+  border-radius: 50%;
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .backboard {
   position: absolute;
-  top: 24%;
-  right: 6%;
-  width: 70px;
-  height: 96px;
-  border: 2px solid rgba(255, 255, 255, 0.45);
+  top: 22%;
+  right: 6.5%;
+  width: 76px;
+  height: 104px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.08);
+}
+
+.backboard::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.backboard::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 24px 0 rgba(255, 255, 255, 0.18),
+    0 48px 0 rgba(255, 255, 255, 0.18),
+    44px 0 0 rgba(255, 255, 255, 0.18),
+    44px 24px 0 rgba(255, 255, 255, 0.18),
+    44px 48px 0 rgba(255, 255, 255, 0.18);
+}
+
+.backboard-square {
+  position: absolute;
+  top: 44%;
+  right: 11.5%;
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-radius: 6px;
 }
 
 .rim {
   position: absolute;
-  top: 56%;
-  right: 10%;
-  width: 46px;
+  top: 58%;
+  right: 12%;
+  width: 54px;
   height: 18px;
   border-radius: 50%;
   border: 3px solid #ff8a26;
-  box-shadow: 0 0 12px rgba(255, 122, 26, 0.5);
-  background: transparent;
+  box-shadow: 0 0 10px rgba(255, 122, 26, 0.5), inset 0 -2px 4px rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.rim::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: 4px;
+  width: 60px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.45);
+  opacity: 0.35;
+}
+
+.rim::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+}
+
+.rim-connector {
+  position: absolute;
+  top: 56%;
+  right: 18.5%;
+  width: 16px;
+  height: 10px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #ff8a26, #b85a18);
+  box-shadow: 0 0 6px rgba(255, 122, 26, 0.35);
 }
 
 .net {
   position: absolute;
-  top: 60%;
-  right: 11%;
-  width: 40px;
-  height: 50px;
+  top: 63%;
+  right: 12.5%;
+  width: 42px;
+  height: 52px;
   border: 1px dashed rgba(255, 255, 255, 0.35);
   border-top: none;
-  border-radius: 0 0 22px 22px;
+  border-radius: 0 0 20px 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 70%),
+    repeating-linear-gradient(60deg, rgba(255, 255, 255, 0.15) 0 2px, transparent 2px 6px),
+    repeating-linear-gradient(-60deg, rgba(255, 255, 255, 0.12) 0 2px, transparent 2px 6px);
+}
+
+.net.swish {
+  animation: netSwish 0.6s ease;
+  transform-origin: top center;
+}
+
+.net::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 4px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.net::before {
+  content: "";
+  position: absolute;
+  inset: 6px 8px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  opacity: 0.6;
 }
 
 .pole {
   position: absolute;
-  right: 4%;
-  bottom: 6%;
-  width: 10px;
-  height: 70%;
+  right: 4.5%;
+  bottom: 4%;
+  width: 12px;
+  height: 76%;
   border-radius: 8px;
   background: linear-gradient(180deg, #2b2f36, #0b0f14);
   box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.08);
 }
 
+.pole::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: -10px;
+  width: 32px;
+  height: 12px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #262b33, #0b0f14);
+  box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.06);
+}
+
 .paint {
   position: absolute;
   bottom: 10%;
-  left: 18%;
-  width: 42%;
-  height: 52%;
+  left: 20%;
+  width: 38%;
+  height: 48%;
   border-radius: 60px 0 0 60px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(90deg, rgba(255, 122, 26, 0.08), rgba(255, 255, 255, 0.02));
 }
 
 .ball-layer {
@@ -340,10 +541,10 @@ button:active {
 
 .shooter {
   position: absolute;
-  width: 68px;
-  height: 120px;
-  left: 12%;
-  bottom: 16%;
+  width: 74px;
+  height: 132px;
+  left: 11%;
+  bottom: 14%;
   transform-style: preserve-3d;
   transform: translateX(0) translateY(0) rotateY(0deg) rotateX(0deg) scale(1);
   opacity: 1;
@@ -370,20 +571,20 @@ button:active {
 }
 
 .shooter.near {
-  left: 16%;
-  bottom: 14%;
+  left: 15%;
+  bottom: 12%;
   transform: translateX(0) translateY(0) scale(1.05);
 }
 
 .shooter.mid {
-  left: 12%;
-  bottom: 22%;
+  left: 11%;
+  bottom: 20%;
   transform: translateX(0) translateY(0) scale(0.95);
 }
 
 .shooter.far {
-  left: 8%;
-  bottom: 30%;
+  left: 7%;
+  bottom: 28%;
   transform: translateX(0) translateY(0) scale(0.82);
 }
 
@@ -416,23 +617,23 @@ button:active {
 
 .shooter-head {
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, #f6d2b6, #d9a98d 70%);
-  left: 34px;
-  top: 10px;
+  left: 36px;
+  top: 8px;
   box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.25);
 }
 
 .shooter-torso {
   position: absolute;
-  width: 34px;
-  height: 46px;
+  width: 36px;
+  height: 50px;
   background: linear-gradient(180deg, #ff9c3d, #d86a1e);
   border-radius: 10px 10px 12px 12px;
-  left: 24px;
-  top: 28px;
+  left: 26px;
+  top: 30px;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
   display: grid;
   place-items: center;
@@ -447,31 +648,31 @@ button:active {
 
 .shooter-hip {
   position: absolute;
-  width: 30px;
+  width: 32px;
   height: 12px;
   background: #3a2a1b;
   border-radius: 8px;
-  left: 26px;
-  top: 70px;
+  left: 28px;
+  top: 76px;
 }
 
 .shooter-shorts {
   position: absolute;
-  width: 34px;
-  height: 16px;
+  width: 36px;
+  height: 18px;
   background: linear-gradient(180deg, #2e2e2e, #121212);
   border-radius: 6px;
-  left: 24px;
-  top: 74px;
+  left: 26px;
+  top: 78px;
 }
 
 .shooter-leg {
   position: absolute;
   width: 12px;
-  height: 38px;
-  background: linear-gradient(180deg, #2c2c2c, #121212);
+  height: 42px;
+  background: linear-gradient(180deg, #2c2c2c, #0f0f0f);
   border-radius: 8px;
-  top: 78px;
+  top: 86px;
 }
 
 .shooter-leg.leg-front {
@@ -491,7 +692,7 @@ button:active {
   height: 6px;
   background: linear-gradient(90deg, #f0f0f0, #b7b7b7);
   border-radius: 6px;
-  top: 112px;
+  top: 122px;
 }
 
 .shooter-shoe.shoe-front {
@@ -508,7 +709,7 @@ button:active {
 .shooter-arm {
   position: absolute;
   left: 34px;
-  top: 38px;
+  top: 40px;
   transform-origin: left center;
 }
 
@@ -549,8 +750,8 @@ button:active {
   height: 12px;
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, #ffd7a3, #ff7a1a 70%, #8b3f0d 100%);
-  left: 56px;
-  top: 36px;
+  left: 60px;
+  top: 38px;
   opacity: 0;
 }
 
@@ -681,6 +882,13 @@ button:active {
   0% { opacity: 0; transform: scale(0.9); }
   30% { opacity: 0.55; transform: scale(1.1); }
   100% { opacity: 0; transform: scale(1.5); }
+}
+
+@keyframes netSwish {
+  0% { transform: scaleY(1); }
+  30% { transform: scaleY(1.15) translateY(2px); }
+  60% { transform: scaleY(0.9) translateY(-1px); }
+  100% { transform: scaleY(1); }
 }
 
 .dice-row {
