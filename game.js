@@ -694,23 +694,26 @@ function animateBall(made) {
   els.ball.style.transition = "none";
   els.ball.style.opacity = "1";
   els.ball.style.transform = `translate(${startX}px, ${startY}px) scale(1)`;
+  els.ball.classList.remove("trail");
+  void els.ball.offsetWidth;
+  els.ball.classList.add("trail");
 
   requestAnimationFrame(() => {
     els.ball.style.transition = "transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.3s ease";
-    els.ball.style.transform = `translate(${rimX}px, ${rimY}px) scale(0.9)`;
+    els.ball.style.transform = `translate(${rimX}px, ${rimY}px) scale(0.9) rotate(220deg)`;
 
     setTimeout(() => {
       const side = state.ballSide;
       state.ballSide *= -1;
       if (made) {
         els.ball.style.transition = "transform 0.4s ease, opacity 0.4s ease";
-        els.ball.style.transform = `translate(${rimX + 6}px, ${rimY + 34}px) scale(0.6)`;
+        els.ball.style.transform = `translate(${rimX + 6}px, ${rimY + 34}px) scale(0.6) rotate(360deg)`;
         els.ball.style.opacity = "0";
       } else {
         const bounceX = rimX + side * 30;
         const bounceY = rimY + 30;
         els.ball.style.transition = "transform 0.4s ease, opacity 0.4s ease";
-        els.ball.style.transform = `translate(${bounceX}px, ${bounceY}px) rotate(120deg) scale(0.7)`;
+        els.ball.style.transform = `translate(${bounceX}px, ${bounceY}px) rotate(260deg) scale(0.7)`;
         els.ball.style.opacity = "0";
       }
     }, 700);
@@ -720,13 +723,23 @@ function animateBall(made) {
 function animateShooter(shotType) {
   const shooter = els.shooter;
   if (!shooter) return;
-  shooter.classList.remove("near", "mid", "far", "animate");
+  shooter.classList.remove("near", "mid", "far", "animate", "pre-dribble", "shot-layup", "shot-mid", "shot-three", "parallax");
   if (shotType === "layup") shooter.classList.add("near");
   if (shotType === "mid") shooter.classList.add("mid");
   if (shotType === "three") shooter.classList.add("far");
-  void shooter.offsetWidth;
-  shooter.classList.add("animate");
-  setTimeout(() => shooter.classList.remove("animate"), 650);
+  shooter.classList.add(`shot-${shotType}`, "parallax");
+  const shadow = shooter.querySelector(".shooter-shadow");
+  if (shadow) shadow.classList.add("jump");
+  shooter.classList.add("pre-dribble");
+  setTimeout(() => {
+    shooter.classList.remove("pre-dribble");
+    void shooter.offsetWidth;
+    shooter.classList.add("animate");
+    setTimeout(() => {
+      shooter.classList.remove("animate", "parallax", "shot-layup", "shot-mid", "shot-three");
+      if (shadow) shadow.classList.remove("jump");
+    }, 700);
+  }, 420);
 }
 
 function defaultStats() {

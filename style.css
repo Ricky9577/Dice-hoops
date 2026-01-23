@@ -255,8 +255,8 @@ button:active {
 .backboard {
   position: absolute;
   top: 22%;
-  right: 6%;
-  width: 70px;
+  right: 5%;
+  width: 68px;
   height: 90px;
   border: 2px solid rgba(255, 255, 255, 0.4);
   border-radius: 8px;
@@ -264,7 +264,7 @@ button:active {
 
 .rim {
   position: absolute;
-  top: 46%;
+  top: 50%;
   right: 4.5%;
   width: 10px;
   height: 60px;
@@ -275,10 +275,10 @@ button:active {
 
 .net {
   position: absolute;
-  top: 48%;
-  right: 6.5%;
-  width: 34px;
-  height: 52px;
+  top: 52%;
+  right: 7.5%;
+  width: 36px;
+  height: 54px;
   border: 1px dashed rgba(255, 255, 255, 0.35);
   border-left: none;
   border-radius: 0 24px 24px 0;
@@ -287,9 +287,9 @@ button:active {
 .paint {
   position: absolute;
   bottom: 10%;
-  left: 22%;
-  width: 38%;
-  height: 50%;
+  left: 18%;
+  width: 42%;
+  height: 52%;
   border-radius: 60px 0 0 60px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.03);
@@ -311,82 +311,283 @@ button:active {
   opacity: 0;
 }
 
+.ball.trail {
+  filter: drop-shadow(0 0 6px rgba(255, 156, 61, 0.6));
+}
+
+.ball.trail::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 156, 61, 0.35), transparent 60%);
+  opacity: 0;
+  animation: ballTrail 0.6s ease forwards;
+}
+
 .shooter {
   position: absolute;
-  width: 38px;
-  height: 70px;
-  left: 14%;
-  bottom: 22%;
+  width: 68px;
+  height: 120px;
+  left: 12%;
+  bottom: 16%;
   transform-style: preserve-3d;
-  transform: translateX(0) translateY(0) rotateY(15deg) rotateX(10deg) scale(1);
+  transform: translateX(0) translateY(0) rotateY(0deg) rotateX(0deg) scale(1);
   opacity: 0;
   pointer-events: none;
 }
 
+.shooter::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  opacity: 0.35;
+  mix-blend-mode: screen;
+}
+
+.shooter-outline {
+  position: absolute;
+  inset: -6px;
+  border: 2px solid rgba(0, 0, 0, 0.45);
+  border-radius: 14px;
+  filter: blur(0.3px);
+  opacity: 0.35;
+}
+
 .shooter.near {
-  left: 18%;
-  bottom: 22%;
-  transform: translateX(0) translateY(0) rotateY(18deg) rotateX(8deg) scale(1.05);
+  left: 16%;
+  bottom: 14%;
+  transform: translateX(0) translateY(0) scale(1.05);
 }
 
 .shooter.mid {
   left: 12%;
-  bottom: 28%;
-  transform: translateX(0) translateY(0) rotateY(14deg) rotateX(12deg) scale(0.95);
+  bottom: 22%;
+  transform: translateX(0) translateY(0) scale(0.95);
 }
 
 .shooter.far {
   left: 8%;
-  bottom: 34%;
-  transform: translateX(0) translateY(0) rotateY(10deg) rotateX(16deg) scale(0.82);
+  bottom: 30%;
+  transform: translateX(0) translateY(0) scale(0.82);
 }
 
-.shooter-body {
+.shooter-shadow {
   position: absolute;
-  bottom: 0;
-  left: 50%;
+  bottom: 6px;
+  left: 6px;
+  width: 56px;
+  height: 16px;
+  background: radial-gradient(circle, rgba(0,0,0,0.45), transparent 70%);
+  filter: blur(2px);
+}
+
+.shooter-outline {
+  position: absolute;
+  inset: -6px;
+  border: 2px solid rgba(0, 0, 0, 0.45);
+  border-radius: 14px;
+  filter: blur(0.3px);
+  opacity: 0.35;
+}
+
+.shooter.parallax .shooter-outline {
+  animation: shooterParallax 0.6s ease forwards;
+}
+
+.shooter-shadow.jump {
+  animation: shooterShadow 0.5s ease forwards;
+}
+
+.shooter-head {
+  position: absolute;
   width: 20px;
-  height: 36px;
-  background: linear-gradient(180deg, #ff9c3d, #4a2c15);
-  border-radius: 12px 12px 6px 6px;
-  transform: translateX(-50%) translateZ(6px);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #f6d2b6, #d9a98d 70%);
+  left: 34px;
+  top: 10px;
+  box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.25);
+}
+
+.shooter-torso {
+  position: absolute;
+  width: 34px;
+  height: 46px;
+  background: linear-gradient(180deg, #ff9c3d, #d86a1e);
+  border-radius: 10px 10px 12px 12px;
+  left: 24px;
+  top: 28px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+  display: grid;
+  place-items: center;
+}
+
+.jersey-number {
+  font-size: 14px;
+  font-weight: 800;
+  color: rgba(20, 12, 8, 0.7);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.shooter-hip {
+  position: absolute;
+  width: 30px;
+  height: 12px;
+  background: #3a2a1b;
+  border-radius: 8px;
+  left: 26px;
+  top: 70px;
+}
+
+.shooter-shorts {
+  position: absolute;
+  width: 34px;
+  height: 16px;
+  background: linear-gradient(180deg, #2e2e2e, #121212);
+  border-radius: 6px;
+  left: 24px;
+  top: 74px;
+}
+
+.shooter-leg {
+  position: absolute;
+  width: 12px;
+  height: 38px;
+  background: linear-gradient(180deg, #2c2c2c, #121212);
+  border-radius: 8px;
+  top: 78px;
+}
+
+.shooter-leg.leg-front {
+  left: 36px;
+  transform: rotate(-4deg);
+}
+
+.shooter-leg.leg-back {
+  left: 22px;
+  transform: rotate(6deg);
+  opacity: 0.85;
+}
+
+.shooter-shoe {
+  position: absolute;
+  width: 16px;
+  height: 6px;
+  background: linear-gradient(90deg, #f0f0f0, #b7b7b7);
+  border-radius: 6px;
+  top: 112px;
+}
+
+.shooter-shoe.shoe-front {
+  left: 34px;
+  transform: rotate(-2deg);
+}
+
+.shooter-shoe.shoe-back {
+  left: 18px;
+  transform: rotate(4deg);
+  opacity: 0.9;
 }
 
 .shooter-arm {
   position: absolute;
-  width: 26px;
-  height: 7px;
-  background: #e9e2d8;
-  border-radius: 999px;
-  left: 50%;
-  top: 10px;
+  left: 34px;
+  top: 38px;
   transform-origin: left center;
-  transform: translateX(-2px) translateZ(10px) rotate(-20deg);
+}
+
+.shooter-arm.arm-back {
+  opacity: 0.7;
+  transform: rotate(8deg);
+}
+
+.shooter-arm.arm-front {
+  transform: rotate(-10deg);
+}
+
+.arm-upper,
+.arm-lower {
+  position: absolute;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f0c7a6, #c9987d);
+}
+
+.arm-upper {
+  width: 20px;
+  left: 0;
+  top: 0;
+}
+
+.arm-lower {
+  width: 18px;
+  left: 14px;
+  top: 2px;
+  transform-origin: left center;
+  transform: rotate(10deg);
 }
 
 .shooter-ball {
   position: absolute;
-  width: 11px;
-  height: 11px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, #ffd7a3, #ff7a1a 70%, #8b3f0d 100%);
-  left: 50%;
-  top: 4px;
-  transform: translateX(10px) translateZ(12px);
+  left: 56px;
+  top: 36px;
   opacity: 0;
 }
 
 .shooter.animate {
-  animation: shooterAppear 0.18s ease forwards, shooterJump 0.45s ease forwards;
+  animation: shooterAppear 0.18s ease forwards, shooterJump 0.5s ease forwards;
+}
+
+.shooter.shot-layup.animate {
+  animation: shooterAppear 0.18s ease forwards, shooterJumpLayup 0.35s ease forwards;
+}
+
+.shooter.shot-three.animate {
+  animation: shooterAppear 0.18s ease forwards, shooterJumpThree 0.65s ease forwards;
+}
+
+.shooter.pre-dribble {
+  opacity: 1;
 }
 
 .shooter.animate .shooter-arm {
-  animation: shooterArm 0.6s ease forwards;
+  animation: shooterArm 0.65s ease forwards;
+}
+
+.shooter.animate .shooter-arm .arm-lower {
+  animation: shooterElbow 0.65s ease forwards;
 }
 
 .shooter.animate .shooter-ball {
-  animation: shooterBall 0.6s ease forwards;
+  animation: shooterBall 0.65s ease forwards;
+}
+
+.shooter.shot-layup.animate .shooter-arm {
+  animation: shooterArmLayup 0.45s ease forwards;
+}
+
+.shooter.shot-layup.animate .shooter-ball {
+  animation-duration: 0.45s;
+}
+
+.shooter.shot-three.animate .shooter-arm {
+  animation: shooterArmThree 0.75s ease forwards;
+}
+
+.shooter.shot-three.animate .shooter-ball {
+  animation-duration: 0.75s;
+}
+
+.shooter.pre-dribble .shooter-ball {
+  opacity: 1;
+  animation: dribbleBall 0.45s ease-in-out infinite;
 }
 
 @keyframes shooterAppear {
@@ -395,21 +596,74 @@ button:active {
 }
 
 @keyframes shooterJump {
-  0% { transform: translateY(8px) scale(0.98); }
-  50% { transform: translateY(-6px) scale(1.02); }
+  0% { transform: translateY(6px) scale(0.98); }
+  50% { transform: translateY(-8px) scale(1.02); }
   100% { transform: translateY(0) scale(1); }
 }
 
+@keyframes shooterJumpLayup {
+  0% { transform: translateY(4px) scale(0.98); }
+  50% { transform: translateY(-4px) scale(1.01); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes shooterJumpThree {
+  0% { transform: translateY(8px) scale(0.98); }
+  50% { transform: translateY(-12px) scale(1.03); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes shooterParallax {
+  0% { transform: translateX(-2px); }
+  100% { transform: translateX(4px); }
+}
+
+@keyframes shooterShadow {
+  0% { transform: scale(1); opacity: 0.45; }
+  50% { transform: scale(0.6); opacity: 0.2; }
+  100% { transform: scale(1); opacity: 0.45; }
+}
+
 @keyframes shooterArm {
-  0% { transform: translateX(-2px) translateZ(10px) rotate(-20deg); }
-  50% { transform: translateX(-2px) translateZ(10px) rotate(-55deg); }
-  100% { transform: translateX(-2px) translateZ(10px) rotate(-80deg); }
+  0% { transform: rotate(-10deg); }
+  45% { transform: rotate(-45deg); }
+  100% { transform: rotate(-75deg); }
+}
+
+@keyframes shooterArmLayup {
+  0% { transform: rotate(-5deg); }
+  40% { transform: rotate(-35deg); }
+  100% { transform: rotate(-55deg); }
+}
+
+@keyframes shooterArmThree {
+  0% { transform: rotate(-12deg); }
+  40% { transform: rotate(-55deg); }
+  100% { transform: rotate(-88deg); }
+}
+
+@keyframes shooterElbow {
+  0% { transform: rotate(10deg); }
+  45% { transform: rotate(-20deg); }
+  100% { transform: rotate(-50deg); }
 }
 
 @keyframes shooterBall {
-  0% { opacity: 0; transform: translateX(10px) translateZ(12px) scale(0.9); }
-  40% { opacity: 1; transform: translateX(18px) translateZ(22px) scale(1); }
-  100% { opacity: 0; transform: translateX(34px) translateZ(30px) scale(0.7); }
+  0% { opacity: 0; transform: translateX(0) translateY(0) scale(0.9); }
+  40% { opacity: 1; transform: translateX(10px) translateY(-4px) scale(1); }
+  100% { opacity: 0; transform: translateX(22px) translateY(-8px) scale(0.7); }
+}
+
+@keyframes dribbleBall {
+  0% { transform: translateX(-6px) translateY(14px) scale(1); }
+  50% { transform: translateX(-4px) translateY(26px) scale(0.85); }
+  100% { transform: translateX(-6px) translateY(14px) scale(1); }
+}
+
+@keyframes ballTrail {
+  0% { opacity: 0; transform: scale(0.9); }
+  30% { opacity: 0.55; transform: scale(1.1); }
+  100% { opacity: 0; transform: scale(1.5); }
 }
 
 .dice-row {
