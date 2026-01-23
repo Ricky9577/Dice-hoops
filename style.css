@@ -302,6 +302,7 @@ button:active {
 .ball-layer {
   position: absolute;
   inset: 0;
+  perspective: 800px;
 }
 
 .ball {
@@ -312,6 +313,98 @@ button:active {
   background: radial-gradient(circle at 30% 30%, #ffd7a3, #ff7a1a 60%, #8b3f0d 100%);
   box-shadow: 0 0 10px rgba(255, 122, 26, 0.4);
   opacity: 0;
+}
+
+.shooter {
+  position: absolute;
+  width: 30px;
+  height: 52px;
+  left: 50%;
+  bottom: 18%;
+  transform-style: preserve-3d;
+  transform: translateX(-50%) translateY(0) rotateX(15deg) scale(1);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.shooter.near {
+  bottom: 14%;
+  transform: translateX(-50%) translateY(0) rotateX(10deg) scale(1.08);
+}
+
+.shooter.mid {
+  bottom: 26%;
+  transform: translateX(-50%) translateY(0) rotateX(18deg) scale(0.95);
+}
+
+.shooter.far {
+  bottom: 36%;
+  transform: translateX(-50%) translateY(0) rotateX(22deg) scale(0.82);
+}
+
+.shooter-body {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 18px;
+  height: 30px;
+  background: linear-gradient(180deg, #ff9c3d, #4a2c15);
+  border-radius: 10px 10px 6px 6px;
+  transform: translateX(-50%) translateZ(6px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.shooter-arm {
+  position: absolute;
+  width: 20px;
+  height: 6px;
+  background: #e9e2d8;
+  border-radius: 999px;
+  left: 50%;
+  top: 8px;
+  transform-origin: left center;
+  transform: translateX(-2px) translateZ(8px) rotate(-10deg);
+}
+
+.shooter-ball {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ffd7a3, #ff7a1a 70%, #8b3f0d 100%);
+  left: 50%;
+  top: 2px;
+  transform: translateX(6px) translateZ(10px);
+  opacity: 0;
+}
+
+.shooter.animate {
+  animation: shooterAppear 0.15s ease forwards;
+}
+
+.shooter.animate .shooter-arm {
+  animation: shooterArm 0.55s ease forwards;
+}
+
+.shooter.animate .shooter-ball {
+  animation: shooterBall 0.55s ease forwards;
+}
+
+@keyframes shooterAppear {
+  0% { opacity: 0; transform: translateX(-50%) translateY(12px) scale(0.9); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+@keyframes shooterArm {
+  0% { transform: translateX(-2px) translateZ(8px) rotate(-10deg); }
+  50% { transform: translateX(-2px) translateZ(8px) rotate(-45deg); }
+  100% { transform: translateX(-2px) translateZ(8px) rotate(-70deg); }
+}
+
+@keyframes shooterBall {
+  0% { opacity: 0; transform: translateX(6px) translateZ(10px) scale(0.8); }
+  40% { opacity: 1; transform: translateX(12px) translateZ(18px) scale(1); }
+  100% { opacity: 0; transform: translateX(24px) translateZ(26px) scale(0.6); }
 }
 
 .dice-row {

@@ -283,6 +283,7 @@ const els = {
   ball: document.getElementById("ball"),
   ballLayer: document.getElementById("ballLayer"),
   rim: document.getElementById("rim"),
+  shooter: document.getElementById("shooter"),
   coachOverlay: document.getElementById("coachOverlay"),
   coachFocus: document.getElementById("coachFocus"),
   coachText: document.getElementById("coachText"),
@@ -458,7 +459,7 @@ function logContext(d2) {
   addLog(`${t("log_context")}: ${contextLabel(d2)}`);
 }
 
-function resolveOutcome(team, d2Override, d3Override, contextLogged = false) {
+function resolveOutcome(team, d2Override, d3Override, contextLogged = false, animDelay = 0) {
   const d2 = d2Override || rollDie();
   const d3 = d3Override || rollDie();
   state.dice.d2 = d2;
@@ -498,7 +499,15 @@ function resolveOutcome(team, d2Override, d3Override, contextLogged = false) {
   const made = d3 <= success;
 
   addLog(`${t("log_outcome")}: ${d3} / ${success}`);
-  animateBall(made);
+  if (animDelay > 0) {
+    setTimeout(() => {
+      animateShooter(state.shot);
+      animateBall(made);
+    }, animDelay);
+  } else {
+    animateShooter(state.shot);
+    animateBall(made);
+  }
   recordShot(team, state.activePlayerIndex, state.shot, made);
 
   if (made) {
@@ -540,7 +549,7 @@ async function rollOutcomeAnimated(team, delay2, delay3) {
   state.dice.d3 = d3;
   await wait(delay3);
   setDiceValue(els.dice3, d3);
-  return resolveOutcome(team, d2, d3, true);
+  return resolveOutcome(team, d2, d3, true, 220);
 }
 
 function addPoints(team, points) {
@@ -700,6 +709,18 @@ function animateBall(made) {
       }
     }, 560);
   });
+}
+
+function animateShooter(shotType) {
+  const shooter = els.shooter;
+  if (!shooter) return;
+  shooter.classList.remove("near", "mid", "far", "animate");
+  if (shotType === "layup") shooter.classList.add("near");
+  if (shotType === "mid") shooter.classList.add("mid");
+  if (shotType === "three") shooter.classList.add("far");
+  void shooter.offsetWidth;
+  shooter.classList.add("animate");
+  setTimeout(() => shooter.classList.remove("animate"), 650);
 }
 
 function defaultStats() {
