@@ -680,17 +680,23 @@ function shotLabel(shot) {
 function animateBall(made) {
   const rimRect = els.rim.getBoundingClientRect();
   const layerRect = els.ballLayer.getBoundingClientRect();
-  const startX = layerRect.width / 2;
-  const startY = layerRect.height * 0.8;
   const rimX = rimRect.left - layerRect.left + rimRect.width / 2;
   const rimY = rimRect.top - layerRect.top + rimRect.height / 2;
+  const startPositions = {
+    layup: { x: layerRect.width * 0.24, y: layerRect.height * 0.68 },
+    mid: { x: layerRect.width * 0.18, y: layerRect.height * 0.56 },
+    three: { x: layerRect.width * 0.12, y: layerRect.height * 0.44 }
+  };
+  const shotKey = state.shot || "mid";
+  const startX = startPositions[shotKey].x;
+  const startY = startPositions[shotKey].y;
 
   els.ball.style.transition = "none";
   els.ball.style.opacity = "1";
   els.ball.style.transform = `translate(${startX}px, ${startY}px) scale(1)`;
 
   requestAnimationFrame(() => {
-    els.ball.style.transition = "transform 0.55s ease, opacity 0.3s ease";
+    els.ball.style.transition = "transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.3s ease";
     els.ball.style.transform = `translate(${rimX}px, ${rimY}px) scale(0.9)`;
 
     setTimeout(() => {
@@ -698,16 +704,16 @@ function animateBall(made) {
       state.ballSide *= -1;
       if (made) {
         els.ball.style.transition = "transform 0.4s ease, opacity 0.4s ease";
-        els.ball.style.transform = `translate(${rimX}px, ${rimY + 36}px) scale(0.6)`;
+        els.ball.style.transform = `translate(${rimX + 6}px, ${rimY + 34}px) scale(0.6)`;
         els.ball.style.opacity = "0";
       } else {
-        const bounceX = rimX + side * 40;
-        const bounceY = rimY + 28;
+        const bounceX = rimX + side * 30;
+        const bounceY = rimY + 30;
         els.ball.style.transition = "transform 0.4s ease, opacity 0.4s ease";
         els.ball.style.transform = `translate(${bounceX}px, ${bounceY}px) rotate(120deg) scale(0.7)`;
         els.ball.style.opacity = "0";
       }
-    }, 560);
+    }, 700);
   });
 }
 
